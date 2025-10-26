@@ -536,34 +536,6 @@ function showLesson(courseKey, lessonTitle) {
   let lessonScore = 0;
   const totalXP = lesson.questions.reduce((s, q) => s + (q.xp || 0), 0);
 
-  // Add live score display
-  const scoreContainer = document.createElement("div");
-  scoreContainer.style.margin = "10px 0";
-  
-  const scoreEl = document.createElement("div");
-  scoreEl.id = "live-lesson-score";
-  scoreEl.style.fontWeight = "bold";
-  scoreEl.textContent = `Your score: ${lessonScore} / ${totalXP} XP`;
-
-  // Progress bar
-  const progressBarContainer = document.createElement("div");
-  progressBarContainer.style.width = "100%";
-  progressBarContainer.style.background = "#ddd";
-  progressBarContainer.style.borderRadius = "8px";
-  progressBarContainer.style.overflow = "hidden";
-  progressBarContainer.style.marginTop = "5px";
-  progressBarContainer.style.height = "16px";
-
-  const progressBar = document.createElement("div");
-  progressBar.style.width = "0%";
-  progressBar.style.height = "100%";
-  progressBar.style.background = "#2a9d8f"; // green
-  progressBar.style.transition = "width 0.3s ease";
-
-  progressBarContainer.appendChild(progressBar);
-  scoreContainer.appendChild(scoreEl);
-  scoreContainer.appendChild(progressBarContainer);
-  lessonPanel.prepend(scoreContainer);
 
   // Function to update score & progress bar
   function updateScore() {
@@ -571,10 +543,13 @@ function showLesson(courseKey, lessonTitle) {
     const scoreEl = slide.querySelector("#live-lesson-score");
     const progressBar = slide.querySelector(".progress-bar-fill");
 
+    if (!scoreEl || !progressBar) return;
+
     scoreEl.textContent = `Your score: ${lessonScore} / ${totalXP} XP`;
     const percent = totalXP === 0 ? 0 : (lessonScore / totalXP) * 100;
     progressBar.style.width = percent + "%";
   }
+
 
   // Render questions
     lesson.questions.forEach((q, i) => {
