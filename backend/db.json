@@ -201,6 +201,76 @@
       ]
     }
   ],
+  "community": [
+    {
+      "id": 1,
+      "topic": "Python",
+      "title": "How do I optimize loops in Python?",
+      "content": "I've been learning Python and my loops are running slow. Any suggestions for optimizing them?",
+      "authorId": 1,
+      "authorName": "William Gan-Gan",
+      "datePosted": "2025-10-25T09:30:00Z",
+      "upvotes": 12,
+      "comments": [
+        {
+          "id": 1,
+          "authorId": 2,
+          "authorName": "Jane Doe",
+          "content": "Try using list comprehensions instead of regular loops. They're much faster!",
+          "datePosted": "2025-10-25T10:00:00Z",
+          "upvotes": 3
+        },
+        {
+          "id": 2,
+          "authorId": 3,
+          "authorName": "Jose Rizal",
+          "content": "Also, consider using NumPy for large datasets — it’s optimized for performance.",
+          "datePosted": "2025-10-25T11:15:00Z",
+          "upvotes": 5
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "topic": "Web Development",
+      "title": "CSS Grid vs Flexbox — when to use each?",
+      "content": "I’m building a responsive layout. Should I use Grid or Flexbox? What are your preferences?",
+      "authorId": 2,
+      "authorName": "Jane Doe",
+      "datePosted": "2025-10-26T08:20:00Z",
+      "upvotes": 7,
+      "comments": [
+        {
+          "id": 1,
+          "authorId": 1,
+          "authorName": "William Gan-Gan",
+          "content": "Grid for overall layout, Flexbox for smaller alignment tasks — I use both.",
+          "datePosted": "2025-10-26T09:10:00Z",
+          "upvotes": 4
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "topic": "Databases",
+      "title": "SQL vs NoSQL — which is better for scalability?",
+      "content": "I’m working on a project and unsure which database type to pick. Thoughts?",
+      "authorId": 3,
+      "authorName": "Jose Rizal",
+      "datePosted": "2025-10-26T12:45:00Z",
+      "upvotes": 9,
+      "comments": [
+        {
+          "id": 1,
+          "authorId": 4,
+          "authorName": "Maria Clara",
+          "content": "If you need flexible schemas, go NoSQL. For structured data, SQL works best.",
+          "datePosted": "2025-10-26T13:00:00Z",
+          "upvotes": 2
+        }
+      ]
+    }
+  ],
   "lessons":[
     {
       "python": {
