@@ -1,10 +1,9 @@
-import jsonServer from 'json-server';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+// server.js
+const jsonServer = require('json-server');
+const path = require('path');
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const server = jsonServer.create();
-const router = jsonServer.router(join(__dirname, 'db.json'));
+const router = jsonServer.router(path.join(__dirname, 'db.json'));
 const middlewares = jsonServer.defaults();
 
 const port = process.env.PORT || 10000;
