@@ -756,6 +756,85 @@ footer {
   position: relative;
 }
 
+/* Live score text */
+#live-lesson-score {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: #264653; /* dark blue */
+}
+
+/* Progress bar container */
+#live-lesson-score + div {
+  width: 100%;
+  background-color: #ddd;
+  border-radius: 8px;
+  height: 16px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress bar fill */
+#live-lesson-score + div div {
+  height: 100%;
+  width: 0%;
+  background-color: #2a9d8f; /* green */
+  transition: width 0.5s ease-in-out; /* smooth animation */
+  border-radius: 8px 0 0 8px; /* rounded left side */
+}
+
+/* Optional: add hover effect to progress bar */
+#live-lesson-score + div:hover div {
+  background-color: #21867a;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Optional: responsive text */
+@media (max-width: 600px) {
+  #live-lesson-score {
+    font-size: 1rem;
+  }
+  #live-lesson-score + div {
+    height: 12px;
+  }
+}
+/* Feedback messages */
+.slide .feedback {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+/* Correct answer feedback */
+.slide .feedback.correct {
+  background-color: #d4f4ea; /* light green */
+  color: #2a9d8f; /* dark green */
+  box-shadow: 0 2px 5px rgba(42, 157, 143, 0.3);
+}
+
+/* Incorrect answer feedback */
+.slide .feedback.incorrect {
+  background-color: #f8d7da; /* light red */
+  color: #e63946; /* dark red */
+  box-shadow: 0 2px 5px rgba(230, 57, 70, 0.3);
+}
+
+/* Optional animation for feedback appearance */
+.slide .feedback.show {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+/* Default hidden state for smooth animation */
+.slide .feedback {
+  transform: scale(1);
+  opacity: 0;
+}
+
 .lesson-card span {
   font-weight: 600;
   color: #001a66;

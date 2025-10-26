@@ -512,7 +512,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // ✅ Display a single lesson and handle quiz logic
- function showLesson(courseKey, lessonTitle) {
+function showLesson(courseKey, lessonTitle) {
   const course = lessonsData[courseKey];
   const lesson = course.lessons.find((l) => l.title === lessonTitle);
   if (!lesson) return;
@@ -534,6 +534,43 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Track XP for this lesson
   let lessonScore = 0;
+  const totalXP = lesson.questions.reduce((s, q) => s + (q.xp || 0), 0);
+
+  // Add live score display
+  const scoreContainer = document.createElement("div");
+  scoreContainer.style.margin = "10px 0";
+  
+  const scoreEl = document.createElement("div");
+  scoreEl.id = "live-lesson-score";
+  scoreEl.style.fontWeight = "bold";
+  scoreEl.textContent = `Your score: ${lessonScore} / ${totalXP} XP`;
+
+  // Progress bar
+  const progressBarContainer = document.createElement("div");
+  progressBarContainer.style.width = "100%";
+  progressBarContainer.style.background = "#ddd";
+  progressBarContainer.style.borderRadius = "8px";
+  progressBarContainer.style.overflow = "hidden";
+  progressBarContainer.style.marginTop = "5px";
+  progressBarContainer.style.height = "16px";
+
+  const progressBar = document.createElement("div");
+  progressBar.style.width = "0%";
+  progressBar.style.height = "100%";
+  progressBar.style.background = "#2a9d8f"; // green
+  progressBar.style.transition = "width 0.3s ease";
+
+  progressBarContainer.appendChild(progressBar);
+  scoreContainer.appendChild(scoreEl);
+  scoreContainer.appendChild(progressBarContainer);
+  lessonPanel.prepend(scoreContainer);
+
+  // Function to update score & progress bar
+  function updateScore() {
+    scoreEl.textContent = `Your score: ${lessonScore} / ${totalXP} XP`;
+    const percent = totalXP === 0 ? 0 : (lessonScore / totalXP) * 100;
+    progressBar.style.width = percent + "%";
+  }
 
   // Render questions
   lesson.questions.forEach((q, i) => {
@@ -592,7 +629,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btn = slide.querySelector(".submit-btn");
     const feedback = slide.querySelector(".feedback");
     let attempts = 2;
+    let answeredCorrectly = false;
+
     btn.onclick = () => {
+      if (answeredCorrectly) return; // prevent double-counting
       const q = lesson.questions[idx];
       let correct = false;
 
@@ -609,20 +649,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       attempts--;
       if (correct) {
         feedback.textContent = "✅ Correct!";
-        feedback.style.color = "#2a9d8f";
+        feedback.classList.add("correct", "show");   
+        feedback.classList.remove("incorrect");      
         btn.disabled = true;
-        lessonScore += q.xp || 0; // Add XP only if correct
+        lessonScore += q.xp || 0;
+        updateScore(); 
         nextBtn.disabled = false;
+        answeredCorrectly = true;
       } else {
         feedback.textContent = attempts > 0
           ? `❌ Incorrect (${attempts} tries left)`
           : `Answer: ${q.answer}`;
-        feedback.style.color = "#e63946";
+        feedback.classList.add("incorrect", "show"); 
+        feedback.classList.remove("correct");      
         if (attempts <= 0) {
           btn.disabled = true;
           nextBtn.disabled = false;
         }
       }
+
     };
   });
 
@@ -636,6 +681,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     else completeLesson(course, lesson, lessonScore);
   };
 }
+
 
 // ✅ Lesson completion logic with earned XP
 async function completeLesson(course, lesson, xpEarned) {
