@@ -34,24 +34,34 @@ body {
   gap: 24px;
 }
 
+/* Only show when active */
 .section.active {
   display: flex;
 }
 /* ===== DISCUSSION SECTION ===== */
 #discussions-section {
-  display: flex;
-  justify-content: space-between;
+  flex-direction: row; /* override column layout */
   align-items: flex-start;
+  justify-content: space-between;
   gap: 24px;
-  margin-top: 20px;
 }
 
-/* Left column: Discussion posts */
-.discussion-main {
-  flex: 1.6; /* Main content wider */
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Left side (discussion posts) takes more space */
+#discussions-section .discussion-main {
+  flex: 1.6;
+}
+
+
+@media (max-width: 992px) {
+  #discussions-section {
+    flex-direction: column;
+  }
+
+  #trending-topics {
+    position: static;
+    width: 100%;
+    margin-top: 20px;
+  }
 }
 
 /* ===== NEW POST BOX ===== */
@@ -266,7 +276,6 @@ body {
   background: #1b6fe6;
 }
 
-/* Right column: Trending topics sidebar */
 #trending-topics {
   flex: 0.8;
   background: #fff;
@@ -294,7 +303,7 @@ body {
   font-size: 1.2rem;
 }
 
-/* Trending list styles */
+/* Trending list */
 .trending-list {
   list-style: none;
   margin: 0;
@@ -304,7 +313,6 @@ body {
   gap: 10px;
 }
 
-/* Individual trending item */
 .trending-list li {
   background: #f4f7ff;
   border-radius: 10px;
@@ -325,7 +333,7 @@ body {
   box-shadow: 0 3px 8px rgba(46, 137, 255, 0.25);
 }
 
-/* Topic label and stat alignment */
+/* Topic details */
 .trending-list li .topic-title {
   display: flex;
   align-items: center;
@@ -339,6 +347,19 @@ body {
 
 .trending-list li:hover .topic-stat {
   color: #e2e8f0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  #discussions-section {
+    flex-direction: column;
+  }
+
+  #trending-topics {
+    position: static;
+    width: 100%;
+    margin-top: 20px;
+  }
 }
 /* =======================================================
    FEED SECTION
