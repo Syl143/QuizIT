@@ -70,11 +70,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const LOCAL_USERS_KEY = "quizit_local_users";
   const qs = (sel) => document.querySelector(sel);
 
-  // ✅ Auto-detect JSON Server base URL (works on Codespaces or local)
-  const BASE_URL =
-    location.hostname.includes("github.dev") || location.hostname.includes("app.github.dev")
-      ? `https://${location.hostname}/users`
-      : "http://localhost:3000/users";
+  // ✅ Auto-detect correct API URL
+  let BASE_URL;
+  if (window.location.hostname.includes("localhost")) {
+    BASE_URL = "http://localhost:3000/users";
+  } else if (window.location.hostname.includes("onrender.com")) {
+    // Replace with your actual Render API URL
+    BASE_URL = "https://quizit-backend.onrender.com/users";
+  } else {
+    BASE_URL = "https://quizit-backend.onrender.com/users";
+  }
+
+  console.log("🌐 Using BASE_URL:", BASE_URL);
 
   // ================== ELEMENTS ==================
   const loginForm = qs("#loginForm");
@@ -112,8 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
-      // Reset UI
       loginError.textContent = "";
       loginError.classList.remove("show");
 
@@ -160,19 +165,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        // ✅ Fetch existing users
         const res = await fetch(BASE_URL);
         if (!res.ok) throw new Error("Cannot connect to server.");
         const users = await res.json();
 
-        // ✅ Check if email already exists
         const userExists = users.some((user) => user.email.toLowerCase() === email);
         if (userExists) {
           alert("Email already exists. Please log in instead.");
           return;
         }
 
-        // ✅ Create new user
         const newUser = {
           fullname,
           email,
@@ -182,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
           lessonHistory: [],
         };
 
-        // ✅ Add user to JSON Server
         const addRes = await fetch(BASE_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -192,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!addRes.ok) throw new Error("Failed to register user.");
         const savedUser = await addRes.json();
 
-        // ✅ Store in session & redirect
         sessionStorage.setItem("loggedInUser", JSON.stringify(savedUser));
         alert("Signup successful! Redirecting...");
         window.location.href = "homepage.html";
@@ -209,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loginError.classList.add("show");
   }
 });
-
 </script>
 
 </body>
