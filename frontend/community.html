@@ -207,119 +207,351 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  // ================== CONFIG ==================
-  const BASE_URL = window.location.hostname.includes("localhost")
-    ? "http://localhost:3000/posts"
-    : "https://quizit-backend-bql1.onrender.com/posts";
+document.addEventListener("DOMContentLoaded", async () => {
+  // ----- CONFIG -----
+const API_BASE = window.location.hostname.includes("render.com")
+  ? "https://quizit-backend.onrender.com"
+  : "http://localhost:3000";
 
-  const USER_KEY = "loggedInUser";
+const USERS_ENDPOINT = `${API_BASE}/users`;
+const LOCAL_USERS_KEY = "quizit_local_users";
 
-  // ================== ELEMENTS ==================
-  const postForm = document.getElementById("postForm");
-  const postContent = document.getElementById("postContent");
-  const postFeed = document.getElementById("postFeed");
+const qs = (sel) => document.querySelector(sel);
+const qsa = (sel) => Array.from(document.querySelectorAll(sel));
 
-  // ================== CURRENT USER ==================
-  const loggedInUser = JSON.parse(sessionStorage.getItem(USER_KEY));
-  if (!loggedInUser) {
-    alert("Please log in to access the community page.");
+  // ----- TAB SWITCHING -----
+const tabs = document.querySelectorAll('.tab');
+const sections = {
+  discussions: document.getElementById('discussions-section'),
+  'my-feed': document.getElementById('feed-section')
+};
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    // Toggle active class on tabs
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    // Show only the corresponding section
+    Object.values(sections).forEach(sec => sec.classList.remove('active'));
+    sections[tab.dataset.tab].classList.add('active');
+  });
+});
+
+// Initialize default section
+sections['discussions'].classList.add('active');
+
+
+  // ----- SESSION CHECK -----
+  const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if (!sessionUser) {
+    alert("Please log in first.");
     window.location.href = "index.html";
     return;
   }
 
-  console.log("👤 Logged in as:", loggedInUser.fullname);
+  // ----- LOAD USERS -----
+let users = [];
+try {
+  const res = await fetch(USERS_ENDPOINT); // GET all users
+  if (!res.ok) throw new Error("json-server not available");
+  users = await res.json();
+} catch (err) {
+  console.warn("json-server unavailable, falling back to localStorage...");
+  const stored = localStorage.getItem(LOCAL_USERS_KEY);
+  users = stored ? JSON.parse(stored) : [];
+}
 
-  // ================== LOAD POSTS ==================
-  async function loadPosts() {
-    try {
-      const response = await fetch(BASE_URL, { cache: "no-cache" });
-      if (!response.ok) throw new Error("Failed to fetch posts");
-      const posts = await response.json();
-      renderPosts(posts.reverse()); // Show newest first
-    } catch (err) {
-      console.error("Error loading posts:", err);
-      postFeed.innerHTML = "<p class='error'>⚠️ Failed to load posts.</p>";
-    }
+// Find logged-in user
+let user = users.find(u => u.email === sessionUser.email);
+if (!user) {
+  alert("User not found.");
+  sessionStorage.clear();
+  window.location.href = "index.html";
+  return;
+}
+
+  // ----- ELEMENTS -----
+  const profileNameEl = qs(".profile-info h3");
+
+  // ----- RENDER FUNCTIONS -----
+  function renderProfile() {
+    profileNameEl.textContent = user.fullname;
+    updateXP();
   }
 
-  // ================== RENDER POSTS ==================
-  function renderPosts(posts) {
-    postFeed.innerHTML = "";
+  // ----- INITIALIZE -----
+  renderProfile();
 
-    if (!posts.length) {
-      postFeed.innerHTML = "<p class='empty'>No posts yet. Be the first!</p>";
-      return;
-    }
+  // ----- LOGOUT -----
+  window.logout = function() {
+    sessionStorage.clear();
+    window.location.href = "index.html";
+  };
 
-    posts.forEach((post) => {
-      const div = document.createElement("div");
-      div.classList.add("post");
+const sidebar = document.querySelector('.sidebar');
+  const toggleBtn = document.getElementById('toggleSidebar');
 
-      div.innerHTML = `
-        <div class="post-header">
-          <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" alt="User">
-          <div>
-            <h4>${post.author}</h4>
-            <p class="timestamp">${new Date(post.date).toLocaleString()}</p>
-          </div>
-        </div>
-        <div class="post-body">
-          <p>${post.content}</p>
-        </div>
-        <div class="post-actions">
-          <button class="like-btn">❤️ ${post.likes || 0}</button>
-          <button class="comment-btn">💬 ${post.comments ? post.comments.length : 0}</button>
-        </div>
-      `;
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+  });
+});
 
-      postFeed.appendChild(div);
+document.addEventListener("DOMContentLoaded", () => {
+  const postBtn = document.getElementById("post-btn");
+  const newPostText = document.getElementById("new-post-text");
+  const newPostTitle = document.getElementById("new-post-title");
+  const postsContainer = document.getElementById("discussions-section");
 
-      // Optional: local like functionality
-      const likeBtn = div.querySelector(".like-btn");
-      likeBtn.addEventListener("click", () => {
-        post.likes = (post.likes || 0) + 1;
-        likeBtn.textContent = `❤️ ${post.likes}`;
-      });
+  // Initialize post events
+  function initPosts() {
+    // Toggle comments
+    document.querySelectorAll(".comments-toggle").forEach(btn => {
+      btn.onclick = () => {
+        const card = btn.closest(".discussion-card");
+        const comments = card.querySelector(".comments-section");
+        comments.classList.toggle("hidden");
+      };
+    });
+
+    // Send comment
+    document.querySelectorAll(".send-btn").forEach(btn => {
+      btn.onclick = () => {
+        const container = btn.closest(".discussion-card");
+        const input = btn.closest(".reply-input-container").querySelector(".reply-input");
+        const commentsSection = container.querySelector(".comments-section");
+
+        if (input.value.trim() === "") return;
+
+        const newComment = document.createElement("div");
+        newComment.className = "comment";
+        newComment.innerHTML = `
+          <img src="https://img.icons8.com/color/24/000000/user-male-circle--v1.png" class="user-icon-small" />
+          <strong>You:</strong> ${input.value}
+        `;
+        commentsSection.insertBefore(newComment, btn.closest(".reply-input-container"));
+
+        // Update comment count
+        const toggle = container.querySelector(".comments-toggle");
+        const currentCount = container.querySelectorAll(".comment").length;
+        toggle.textContent = `💬 ${currentCount} Comment${currentCount > 1 ? "s" : ""}`;
+
+        input.value = "";
+      };
+    });
+
+    // Upvote / downvote
+    document.querySelectorAll(".upvote, .downvote").forEach(btn => {
+      btn.onclick = () => {
+        const card = btn.closest(".discussion-card");
+        const countEl = card.querySelector(".vote-count");
+        let count = parseInt(countEl.textContent);
+        if (btn.classList.contains("upvote")) count++;
+        if (btn.classList.contains("downvote")) count--;
+        countEl.textContent = count;
+      };
     });
   }
 
-  // ================== ADD POST ==================
-  postForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const content = postContent.value.trim();
-    if (!content) return alert("Please write something before posting.");
+  // Create new post
+  postBtn.onclick = () => {
+    const title = newPostTitle.value.trim() || "New Post";
+    const content = newPostText.value.trim();
 
-    const newPost = {
-      author: loggedInUser.fullname,
-      content,
-      date: new Date().toISOString(),
-      likes: 0,
-      comments: [],
-    };
+    if (!title && !content) return;
 
-    try {
-      const response = await fetch(BASE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      });
+    const newCard = document.createElement("div");
+    newCard.className = "discussion-card";
+    newCard.dataset.votes = 0;
+    newCard.innerHTML = `
+      <div class="vote-panel">
+        <button class="vote-btn upvote">⬆</button>
+        <span class="vote-count">0</span>
+        <button class="vote-btn downvote">⬇</button>
+      </div>
+      <div class="post-content">
+        <h3>${title}</h3>
+        <p>
+          <img src="https://img.icons8.com/color/24/000000/user-male-circle--v1.png" class="user-icon-small" />
+          <strong>You:</strong> ${content}
+        </p>
+        <div class="post-actions">
+          <span class="comments-toggle">💬 0 Comments</span>
+          <span>🕒 just now</span>
+        </div>
+        <div class="comments-section hidden">
+          <div class="reply-input-container">
+            <input type="text" class="reply-input" placeholder="Write a reply..." />
+            <button class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    `;
 
-      if (!response.ok) throw new Error("Failed to post");
+    // Append below the post box instead of prepending
+    postsContainer.appendChild(newCard);
 
-      postContent.value = "";
-      await loadPosts(); // refresh feed
-    } catch (err) {
-      console.error("Post error:", err);
-      alert("Something went wrong while posting.");
+    // Clear inputs
+    newPostTitle.value = "";
+    newPostText.value = "";
+
+    // Re-initialize event listeners for new post
+    initPosts();
+  };
+
+  // Initialize existing posts
+  initPosts();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const feedNewText = document.getElementById("feed-new-text");
+  const feedImageUpload = document.getElementById("feed-image-upload");
+  const feedVideoUpload = document.getElementById("feed-video-upload");
+  const feedLinkInput = document.getElementById("feed-link-input");
+  const feedPostBtn = document.getElementById("feed-post-btn");
+  const feedPostsContainer = document.getElementById("feed-posts-container");
+
+  // Helper to create a new feed post
+  function createFeedPost(content, imageSrc = "", videoSrc = "", linkUrl = "") {
+    const postCard = document.createElement("div");
+    postCard.className = "feed-post-card";
+
+    postCard.innerHTML = `
+      <div class="feed-post-header">
+        <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" alt="User" class="feed-user-icon">
+        <div>
+          <h4 class="feed-user-name">You</h4>
+          <p class="feed-timestamp">just now</p>
+        </div>
+      </div>
+      <p class="feed-post-content">${content}</p>
+      ${imageSrc ? `<img src="${imageSrc}" alt="Post Image" style="max-width:100%; border-radius:8px;">` : ""}
+      ${videoSrc ? `<video src="${videoSrc}" controls style="max-width:100%; border-radius:8px;"></video>` : ""}
+      ${linkUrl ? `<a href="${linkUrl}" target="_blank">${linkUrl}</a>` : ""}
+      <div class="feed-post-actions">
+        <div class="feed-left-actions">
+          <button class="feed-like-btn"><i class="fa-solid fa-thumbs-up"></i> Like <span class="feed-like-count">0</span></button>
+          <button class="feed-dislike-btn"><i class="fa-solid fa-thumbs-down"></i> Dislike <span class="feed-dislike-count">0</span></button>
+          <button class="feed-comment-btn"><i class="fa-solid fa-comment"></i> Comment</button>
+        </div>
+        <button class="feed-share-btn"><i class="fa-solid fa-share"></i> Share</button>
+      </div>
+      <div class="feed-comment-section hidden">
+        <div class="feed-comment-input">
+          <input type="text" class="feed-comment-text" placeholder="Write a comment..." />
+          <button class="feed-comment-send"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+        <div class="feed-comment-list"></div>
+      </div>
+    `;
+
+    // Attach event listeners
+    attachFeedPostEvents(postCard);
+
+    return postCard;
+  }
+
+  // Attach events for like, dislike, comment, and send
+  function attachFeedPostEvents(postCard) {
+    const likeBtn = postCard.querySelector(".feed-like-btn");
+    const dislikeBtn = postCard.querySelector(".feed-dislike-btn");
+    const commentBtn = postCard.querySelector(".feed-comment-btn");
+    const shareBtn = postCard.querySelector(".feed-share-btn");
+    const commentSection = postCard.querySelector(".feed-comment-section");
+    const commentSendBtn = postCard.querySelector(".feed-comment-send");
+    const commentInput = postCard.querySelector(".feed-comment-text");
+    const likeCountEl = postCard.querySelector(".feed-like-count");
+    const dislikeCountEl = postCard.querySelector(".feed-dislike-count");
+
+    let likes = 0, dislikes = 0;
+
+    likeBtn.addEventListener("click", () => {
+      if (!likeBtn.classList.contains("active")) {
+        likes++;
+        likeBtn.classList.add("active");
+        dislikeBtn.classList.remove("active");
+        if (dislikes > 0) dislikes--;
+      } else {
+        likes--;
+        likeBtn.classList.remove("active");
+      }
+      likeCountEl.textContent = likes;
+      dislikeCountEl.textContent = dislikes;
+    });
+
+    dislikeBtn.addEventListener("click", () => {
+      if (!dislikeBtn.classList.contains("active")) {
+        dislikes++;
+        dislikeBtn.classList.add("active");
+        likeBtn.classList.remove("active");
+        if (likes > 0) likes--;
+      } else {
+        dislikes--;
+        dislikeBtn.classList.remove("active");
+      }
+      likeCountEl.textContent = likes;
+      dislikeCountEl.textContent = dislikes;
+    });
+
+    commentBtn.addEventListener("click", () => {
+      commentSection.classList.toggle("hidden");
+    });
+
+    shareBtn.addEventListener("click", () => {
+      alert("Post shared!");
+    });
+
+    commentSendBtn.addEventListener("click", () => {
+      const text = commentInput.value.trim();
+      if (!text) return;
+      const commentList = postCard.querySelector(".feed-comment-list");
+      const newComment = document.createElement("div");
+      newComment.className = "feed-comment";
+      newComment.textContent = text;
+      commentList.appendChild(newComment);
+      commentInput.value = "";
+    });
+  }
+
+  // Handle new post button click
+  feedPostBtn.addEventListener("click", () => {
+    const text = feedNewText.value.trim();
+    if (!text) return;
+
+    // Handle image/video/link files
+    let imageSrc = "", videoSrc = "", linkUrl = feedLinkInput.value.trim();
+
+    if (feedImageUpload.files.length > 0) {
+      imageSrc = URL.createObjectURL(feedImageUpload.files[0]);
     }
+
+    if (feedVideoUpload.files.length > 0) {
+      videoSrc = URL.createObjectURL(feedVideoUpload.files[0]);
+    }
+
+    const newPost = createFeedPost(text, imageSrc, videoSrc, linkUrl);
+    feedPostsContainer.prepend(newPost);
+
+    // Clear inputs
+    feedNewText.value = "";
+    feedLinkInput.value = "";
+    feedImageUpload.value = "";
+    feedVideoUpload.value = "";
+  });
+    // ----- LOGOUT -----
+  window.logout = function() {
+    sessionStorage.clear();
+    window.location.href = "index.html";
+  };
+});
+const sidebar = document.querySelector('.sidebar');
+  const toggleBtn = document.getElementById('toggleSidebar');
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
   });
 
-  // ================== INIT ==================
-  loadPosts();
-});
 </script>
-
 
 
 </body>
