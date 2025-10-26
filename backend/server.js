@@ -1,15 +1,25 @@
-// server.js
-const jsonServer = require('json-server');
-const path = require('path');
-
+// backend/server.js
+const jsonServer = require("json-server");
 const server = jsonServer.create();
-const router = jsonServer.router(path.join(__dirname, 'db.json'));
-const middlewares = jsonServer.defaults();
+const router = jsonServer.router("db.json");
+const middlewares = jsonServer.defaults({ static: "./public" });
 
-const port = process.env.PORT || 10000;
+const PORT = process.env.PORT || 10000;
+
+// ✅ Enable CORS
+server.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  next();
+});
+
 server.use(middlewares);
 server.use(router);
 
-server.listen(port, () => {
-  console.log(`JSON Server is running on port ${port}`);
+server.listen(PORT, () => {
+  console.log(`✅ JSON Server is running on port ${PORT}`);
 });
