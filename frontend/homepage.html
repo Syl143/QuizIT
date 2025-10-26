@@ -487,10 +487,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       div.className = "lesson-card";
       if (done) div.classList.add("completed");
 
+     const completedLesson = user.lessonHistory.find(
+      h => h.lessonTitle === lesson.title && h.course === course.title
+      );
+      const userXP = completedLesson ? completedLesson.xpEarned : 0;
+      const totalXP = lesson.questions.reduce((sum, q) => sum + (q.xp || 0), 0) || lesson.lessonXP || 50;
+
       div.innerHTML = `
-        <span>${lesson.title}</span>
-        <button class="learn-btn">${done ? "View" : "Start"}</button>
-        ${done ? '<span class="completed-badge">✅</span>' : ""}
+        <div class="lesson-info">
+          <span>${lesson.title}</span>
+          ${done ? `<span class="lesson-xp">Score: ${userXP} / ${totalXP}</span>` : ""}
+        </div>
+        <div class="lesson-actions">
+          <button class="learn-btn">${done ? "View" : "Start"}</button>
+          ${done ? '<span class="completed-badge">✓</span>' : ""}
+        </div>
       `;
 
       div.querySelector(".learn-btn").onclick = () =>

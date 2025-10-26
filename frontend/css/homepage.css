@@ -982,6 +982,38 @@ footer {
   border-color: #0077ff;
 }
 
+/* XP + Completed lessons styling */
+.lesson-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lesson-xp {
+  font-size: 0.9rem;
+  color: #2a9d8f;
+  font-weight: 600;
+}
+
+.lesson-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.completed-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a9d8f1a;
+  color: #2a9d8f;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+
 /* Centered layout */
 .lesson-content .slide {
   border: none;
