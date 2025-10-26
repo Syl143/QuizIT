@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <button id="post-btn"><i class="fa-solid fa-paper-plane"></i> Post</button>
       </div>`;
 
-    // Attach handler for the Post button
+    // ----- Add New Discussion -----
     const postBtn = main.querySelector("#post-btn");
     postBtn.addEventListener("click", async () => {
       const title = qs("#new-post-title").value.trim();
@@ -231,7 +231,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      // Create new discussion object
       const newPost = {
         title,
         content,
@@ -247,12 +246,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newPost),
         });
-
         if (!res.ok) throw new Error("Failed to create discussion");
-
         const created = await res.json();
-        alert("✅ Post added successfully!");
-        // Reload discussions instantly
         discussions.push(created);
         renderDiscussions(discussions);
       } catch (err) {
@@ -261,7 +256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    // Existing discussion cards
+    // ----- Render Existing Discussions -----
     discussions.forEach((d) => {
       const card = document.createElement("div");
       card.classList.add("discussion-card");
@@ -284,15 +279,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             <span>🕒 ${d.timestamp}</span>
           </div>
           <div class="comments-section hidden">
-            ${d.comments
-              .map(
-                (c) => `
+            <div class="comments-list">
+              ${d.comments
+                .map(
+                  (c) => `
                 <div class="comment">
                   <img src="${getUserAvatar(c.author)}" class="user-icon-small" />
                   <strong>${getUserName(c.author)}:</strong> ${c.content}
                 </div>`
-              )
-              .join("")}
+                )
+                .join("")}
+            </div>
             <div class="reply-input-container">
               <input type="text" class="reply-input" placeholder="Write a reply..." />
               <button class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
@@ -303,7 +300,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       main.appendChild(card);
     });
 
-    // Toggle comments
+    // Toggle comment sections
     qsa(".comments-toggle").forEach((btn) =>
       btn.addEventListener("click", (e) => {
         const section = e.target
@@ -319,6 +316,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     qsa(".downvote").forEach((btn) =>
       btn.addEventListener("click", () => updateVote(btn, -1))
+    );
+
+    // ----- Add Reply (POST /discussions/:id/comments) -----
+    qsa(".send-btn").forEach((btn) =>
+      btn.addEventListener("click", async (e) => {
+        const card = e.target.closest(".discussion-card");
+        const input = card.querySelector(".reply-input");
+        const commentText = input.value.trim();
+        if (!commentText) return alert("Please enter a comment.");
+
+        const discussionId = card.dataset.id;
+
+        const newComment = {
+          id: Date.now(),
+          author: user.id,
+          content: commentText,
+        };
+
+        try {
+          // Fetch the discussion to update comments
+          const res = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`);
+          const discussion = await res.json();
+
+          // Append new comment
+          discussion.comments.push(newComment);
+
+          // Update discussion on server
+          const updateRes = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(discussion),
+          });
+
+          if (!updateRes.ok) throw new Error("Failed to post comment");
+
+          input.value = "";
+          await loadCommunity(); // refresh discussions
+        } catch (err) {
+          console.error("Error adding comment:", err);
+          alert("❌ Failed to add comment.");
+        }
+      })
     );
   }
 
@@ -426,6 +465,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 });
 </script>
+
 
 
 
