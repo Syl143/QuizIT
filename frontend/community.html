@@ -187,6 +187,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Error loading community:", err);
     }
   }
+  // ================== RENDER PROFILE INFO ==================
+  const profileNameEl = qs(".profile-info h3");
+  if (profileNameEl) profileNameEl.textContent = user.fullname;
 
 // ----- RENDER DISCUSSIONS -----
 function renderDiscussions(discussions) {

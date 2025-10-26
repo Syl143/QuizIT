@@ -38,7 +38,17 @@ body {
   display: flex;
 }
 /* ===== DISCUSSION SECTION ===== */
+#discussions-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+/* Left column: Discussion posts */
 .discussion-main {
+  flex: 1.6; /* Main content wider */
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -256,7 +266,80 @@ body {
   background: #1b6fe6;
 }
 
+/* Right column: Trending topics sidebar */
+#trending-topics {
+  flex: 0.8;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px 24px;
+  position: sticky;
+  top: 100px; /* stays visible while scrolling */
+  height: fit-content;
+}
 
+/* Sidebar title */
+#trending-topics h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 14px;
+}
+
+#trending-topics h3::before {
+  content: "🔥";
+  font-size: 1.2rem;
+}
+
+/* Trending list styles */
+.trending-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual trending item */
+.trending-list li {
+  background: #f4f7ff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #2e89ff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trending-list li:hover {
+  background: #2e89ff;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(46, 137, 255, 0.25);
+}
+
+/* Topic label and stat alignment */
+.trending-list li .topic-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trending-list li .topic-stat {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.trending-list li:hover .topic-stat {
+  color: #e2e8f0;
+}
 /* =======================================================
    FEED SECTION
    ======================================================= */
