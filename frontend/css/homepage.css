@@ -708,144 +708,209 @@ footer {
   margin-bottom: 25px;
   text-align: center;
 }
+#course-detail-panel {
+  background: #f9fbfd;
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+}
 
+.course-detail-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 50px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.05);
+  max-width: 850px;
+  width: 100%;
+}
+
+.course-detail-content h2 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #003566;
+  margin-bottom: 30px;
+}
 .lesson-card {
   background: #fff;
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #e2e8f0;
   border-radius: 10px;
-  padding: 14px 20px;
+  padding: 16px 20px;
   margin-bottom: 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .lesson-card:hover {
-  background: #f8fbff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 180, 216, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 119, 255, 0.15);
 }
 
 .lesson-card.completed {
+  background: #f5f6f7;
+  border-color: #d3d8df;
   opacity: 0.8;
+  position: relative;
+}
+.lesson-card.completed::after {
+  content: "✓ Completed";
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2a9d8f;
 }
 
 .lesson-card span {
   font-weight: 600;
-  color: #023047;
+  color: #001a66;
 }
 
 .learn-btn {
   background: #0077ff;
   border: none;
-  color: white;
+  color: #fff;
   padding: 8px 18px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.3s;
+  transition: background 0.3s;
 }
-
 .learn-btn:hover {
   background: #005ac1;
 }
 
-/* ===== LESSON PANEL ===== */
+/* ----- LESSON PANEL ----- */
+#lesson-panel {
+  background: #f9fbfd;
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
 .lesson-content {
-  max-width: 900px;
-  margin: 0 auto;
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  padding: 40px 60px;
-  animation: fadeIn 0.4s ease-in-out;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 40px 50px;
+  max-width: 850px;
+  width: 100%;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Progress bar (top like TOPCIT) */
-.lesson-progress {
-  height: 8px;
-  background: #e9ecef;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 28px;
-}
-
-.lesson-progress .progress-fill {
-  height: 100%;
-  background: #34c759;
-  width: 0%;
-  transition: width 0.4s ease;
-}
-
-/* Question text */
+/* LESSON TITLE + INTRO TEXT */
 .lesson-content h3 {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #003566;
+  margin-bottom: 16px;
+}
+
+.lesson-intro {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #444;
+  background: #f8faff;
+  border-left: 5px solid #0077ff;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 30px;
+}
+
+/* QUESTION CONTAINER */
+.slide {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 25px 30px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.slide p {
+  font-size: 1.05rem;
   font-weight: 600;
   color: #001a66;
   margin-bottom: 20px;
 }
 
-/* Choice options */
+/* CHOICE LABELS */
 .slide label {
   display: block;
-  background: #fff;
-  border: 1.5px solid #d0d7e3;
-  border-radius: 8px;
-  padding: 12px 16px;
+  border: 1.5px solid #d0dae8;
+  border-radius: 10px;
+  padding: 10px 14px;
   margin-bottom: 10px;
   font-size: 1rem;
   color: #333;
-  cursor: pointer;
+  background: #fff;
   transition: all 0.25s ease;
+  cursor: pointer;
 }
-
 .slide label:hover {
-  background: #f4f9ff;
+  background: #eef6ff;
   border-color: #0077ff;
 }
 
+/* RADIO BUTTON */
 .slide input[type="radio"] {
   accent-color: #0077ff;
   margin-right: 10px;
 }
 
-/* Short answer input */
+/* SHORT ANSWER INPUT */
 .short-answer-input {
   width: 100%;
-  border: 1.5px solid #cfd8e3;
-  border-radius: 8px;
-  padding: 12px 14px;
+  border: 1.5px solid #ccd5e3;
+  border-radius: 10px;
+  padding: 10px 14px;
   font-size: 1rem;
-  margin-bottom: 16px;
-  transition: border-color 0.25s ease;
+  margin-bottom: 18px;
+  transition: border-color 0.25s;
 }
-
 .short-answer-input:focus {
   border-color: #0077ff;
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.1);
 }
 
-/* Buttons (Back / Check) */
+/* SUBMIT BUTTON */
+.submit-btn {
+  background: #0077ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+.submit-btn:hover {
+  background: #005ac1;
+}
+
+/* NAVIGATION BUTTONS */
 .slider-controls {
   display: flex;
   justify-content: space-between;
-  margin-top: 30px;
+  align-items: center;
+  margin-top: 25px;
 }
 
 .slider-controls button {
+  border: 1.5px solid #ccd5e3;
+  border-radius: 8px;
   background: #fff;
-  border: 2px solid #e1e8f0;
-  color: #003566;
+  color: #001a66;
+  padding: 10px 20px;
   font-weight: 600;
-  border-radius: 10px;
-  padding: 10px 24px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.25s;
 }
-
 .slider-controls button:hover {
   background: #0077ff;
   color: #fff;
@@ -856,13 +921,12 @@ footer {
   background: #0077ff;
   color: #fff;
   border: none;
-  transition: background 0.25s;
 }
 #next-btn:hover {
   background: #005ac1;
 }
 
-/* Hint button */
+/* HINT BUTTON + FEEDBACK */
 #hint-btn {
   background: none;
   color: #ff9f00;
@@ -874,21 +938,48 @@ footer {
   text-decoration: underline;
 }
 
-/* Feedback message */
 .feedback {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 0.95rem;
   font-weight: 600;
 }
 
-/* Hint box */
+/* HINT BOX */
 .hint-box {
   background: #fffbea;
   border-left: 5px solid #ffb703;
-  padding: 12px 16px;
   border-radius: 8px;
-  margin-top: 18px;
-  color: #7a5e00;
+  padding: 12px 16px;
+  margin-top: 20px;
+  color: #5d4a00;
+  font-size: 0.95rem;
+}
+
+/* FADE IN ANIMATION */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----- BACK BUTTON ----- */
+#back-to-courses,
+#back-to-course {
+  background: none;
+  border: 1.5px solid #c7d3e3;
+  color: #003566;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 20px;
+}
+#back-to-courses:hover,
+#back-to-course:hover {
+  background: #0077ff;
+  color: #fff;
+  border-color: #0077ff;
 }
 
 /* Centered layout */
