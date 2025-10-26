@@ -221,6 +221,47 @@ document.addEventListener("DOMContentLoaded", async () => {
         <button id="post-btn"><i class="fa-solid fa-paper-plane"></i> Post</button>
       </div>`;
 
+    // Attach handler for the Post button
+    const postBtn = main.querySelector("#post-btn");
+    postBtn.addEventListener("click", async () => {
+      const title = qs("#new-post-title").value.trim();
+      const content = qs("#new-post-text").value.trim();
+      if (!title || !content) {
+        alert("Please enter both title and content.");
+        return;
+      }
+
+      // Create new discussion object
+      const newPost = {
+        title,
+        content,
+        author: user.id,
+        votes: 0,
+        timestamp: new Date().toLocaleString("en-US", { hour12: true }),
+        comments: [],
+      };
+
+      try {
+        const res = await fetch(DISCUSSIONS_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newPost),
+        });
+
+        if (!res.ok) throw new Error("Failed to create discussion");
+
+        const created = await res.json();
+        alert("✅ Post added successfully!");
+        // Reload discussions instantly
+        discussions.push(created);
+        renderDiscussions(discussions);
+      } catch (err) {
+        console.error("Error posting discussion:", err);
+        alert("❌ Failed to add post. Please try again.");
+      }
+    });
+
+    // Existing discussion cards
     discussions.forEach((d) => {
       const card = document.createElement("div");
       card.classList.add("discussion-card");
@@ -385,6 +426,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 });
 </script>
+
 
 
 
