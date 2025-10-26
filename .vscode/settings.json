@@ -1,0 +1,30 @@
+{
+  // ===== GENERAL VS CODE SETTINGS =====
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.autoSave": "onFocusChange",
+  "liveServer.settings.wait": 500,
+
+  // ===== FIVE SERVER CONFIG FIX =====
+  "fiveServer.config": {
+    // Folder to serve (your project root)
+    "root": "."
+
+    // This stops Five Server from watching or reloading when your API changes
+    , "ignore": [
+      "api/users.json",
+      "api/*.json",
+      "data/*.json"
+    ],
+
+    // Optional: customize port or open behavior
+    "port": 5500,
+    "open": true,
+    "browser": "chrome"
+  },
+
+  // ===== OPTIONAL JSON SERVER SCRIPT REMINDER =====
+  // To start your backend:
+  // npx json-server --watch api/users.json --port 3000
+  // Then your frontend fetches from: http://localhost:3000/users
+}

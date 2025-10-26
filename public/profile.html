@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuizIt | Dashboard</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="css/homepage.css" />
+    <link rel="stylesheet" href="css/quizzes.css" />
+    <link rel="stylesheet" href="css/profile.css" />
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">QuizIt</div>
+        <img
+            src="https://img.icons8.com/?size=100&id=105515&format=png&color=FFFFFF"
+            alt="Toggle Sidebar"
+            class="toggle-icon"
+            id="toggleSidebar"
+        />
+      </div>
+      <ul class="menu">
+        <li><a href="homepage.html"><i class="fa-solid fa-house"></i><span>Home</span></a></li>  
+          <li>
+            <a href="quizzes.html">
+              <img src="https://img.icons8.com/?size=100&id=rx6rZTa05YPn&format=png&color=FFFFFF" 
+                alt="Quiz Icon" class="menu-icon" />
+              <span>Quizzes</span>
+            </a>
+          </li>
+            
+          <li><a href="leaderboards.html"><i class="fa-solid fa-trophy"></i><span>Leaderboards</span></a></li>
+            
+          <li><a href="community.html"><i class="fa-solid fa-comments"></i><span>Community</span></a></li>
+            
+          <li class="active"><a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a></li>
+      </ul>
+      <div class="logout" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Logout</span>
+      </div>
+    </div>
+  </div>
+
+   <!-- Main Content -->
+  <div class="main-content">
+    <header>
+      <h1 class="page-title">Profile</h1>
+
+      <div class="profile-card">
+        <img
+          src="https://img.icons8.com/color/96/000000/user-male-circle--v1.png"
+          alt="Profile"
+        />
+        <div class="profile-info">
+          <h3 class="profile-name">User Name</h3>
+          <p>BSIT Student</p>
+        </div>
+      </div>
+    </header>
+
+    <p class="page-subtitle">View your profile achievements!</p>
+
+    <section id="profile-section" class="section">
+      <div class="profile-layout">
+        <!-- LEFT COLUMN -->
+        <div class="profile-left">
+          <div class="profile-header">
+            <img
+              src="https://img.icons8.com/color/96/000000/user-male-circle--v1.png"
+              alt="Profile Picture"
+              class="profile-picture"
+            />
+            <div class="profile-info">
+              <h2 class="profile-name-2">User Name</h2>
+              <p class="profile-email">user@example.com</p>
+              <p class="profile-xp">
+                Total XP: <span class="xp-value">0</span>
+              </p>
+
+              <!-- Level Display -->
+              <div class="level-display">
+                <p class="level-title">Level 1 — Beginner</p>
+                <div class="level-progress-bar">
+                  <div class="level-progress"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+      <!-- RIGHT COLUMN -->
+        <div class="profile-right">
+          <!-- Milestone Badges -->
+          <div class="profile-badges">
+            <h3>Milestones</h3>
+            <div id="badge-container">
+            </div>
+          </div>
+
+          <!-- Courses Progress -->
+          <div class="profile-courses">
+            <h3>My Courses Progress</h3>
+            <div id="courses-container">
+            </div>
+          </div>
+        </div>
+      </div> 
+    </section>
+    <footer>© 2025 QuizIt — All Rights Reserved</footer>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const API_BASE = "http://localhost:3000";
+  const DB_ENDPOINT = `${API_BASE}/db`;
+  const LOCAL_USERS_KEY = "quizit_local_users";
+
+  const qs = sel => document.querySelector(sel);
+  const qsa = sel => Array.from(document.querySelectorAll(sel));
+
+  // ---- SESSION CHECK ----
+  const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if (!sessionUser) {
+    alert("Please log in first.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ---- LOAD DATA FROM db.json ----
+  let dbData = null;
+  try {
+    const res = await fetch(DB_ENDPOINT);
+    if (!res.ok) throw new Error("Server not reachable");
+    dbData = await res.json();
+  } catch (err) {
+    console.warn("⚠️ Could not fetch db.json. Using localStorage fallback:", err);
+  }
+
+  let users = [];
+  if (dbData && Array.isArray(dbData.users)) {
+    users = dbData.users;
+  } else {
+    const stored = localStorage.getItem(LOCAL_USERS_KEY);
+    users = stored ? JSON.parse(stored) : [];
+  }
+
+  const milestonesData = (dbData && dbData.milestones && dbData.milestones[0]) || { levels: [], badges: [] };
+  const { levels, badges } = milestonesData;
+
+  // ---- FIND LOGGED-IN USER ----
+  let user = users.find(u => u.email === sessionUser.email);
+  if (!user) {
+    alert("User not found.");
+    sessionStorage.clear();
+    window.location.href = "index.html";
+    return;
+  }
+
+  // Defensive defaults
+  user.myCourses = Array.isArray(user.myCourses) ? user.myCourses : [];
+  user.lessonHistory = Array.isArray(user.lessonHistory) ? user.lessonHistory : [];
+  user.totalXP = user.totalXP || 0;
+
+  // ---- ELEMENTS ----
+  const profileNameEl = qs(".profile-name-2");
+  const profileNameEl1 = qs(".profile-name");
+  const profileEmailEl = qs(".profile-email");
+  const profileXPEl = qs(".xp-value");
+  const coursesContainer = qs("#courses-container");
+  const badgeContainer = qs("#badge-container");
+  const levelTitleEl = qs(".level-title");
+  const levelProgressEl = qs(".level-progress");
+
+  // ---- SIDEBAR ----
+  const sidebar = qs(".sidebar");
+  const toggleBtn = qs("#toggleSidebar");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
+    });
+  }
+
+  // ---- SAVE ----
+  function saveUser(updatedUser) {
+    const idx = users.findIndex(u => u.email === updatedUser.email);
+    if (idx !== -1) users[idx] = updatedUser;
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+    sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+  }
+
+  // ---- LEVEL + BADGE HELPERS ----
+  function getUserLevel(totalXP) {
+    if (!Array.isArray(levels) || levels.length === 0) return { level: 0, title: "No Levels", minXP: 0, maxXP: 100 };
+    return levels.slice().reverse().find(l => totalXP >= l.minXP) || levels[0];
+  }
+
+  function getNextLevel(currentXP) {
+    if (!Array.isArray(levels) || levels.length === 0) return null;
+    return levels.find(l => l.minXP > currentXP);
+  }
+
+  function getEarnedBadges(user) {
+    if (!Array.isArray(badges)) return [];
+    return badges.filter(b => {
+      const c = b.criteria || {};
+      return (
+        (!c.totalXP || user.totalXP >= c.totalXP) &&
+        (!c.lessonsCompleted || user.lessonHistory.length >= c.lessonsCompleted) &&
+        (!c.coursesCompleted || user.myCourses.length >= c.coursesCompleted)
+      );
+    });
+  }
+
+  // ---- RENDER PROFILE ----
+  function renderProfile() {
+    if (profileNameEl) profileNameEl.textContent = user.fullname;
+    if (profileNameEl1) profileNameEl1.textContent = user.fullname;
+    if (profileEmailEl) profileEmailEl.textContent = user.email;
+    if (profileXPEl) profileXPEl.textContent = user.totalXP;
+
+    renderLevel();
+    renderBadges();
+    renderCourses();
+  }
+
+  // ---- LEVEL BAR ----
+  function renderLevel() {
+    const current = getUserLevel(user.totalXP);
+    const next = getNextLevel(user.totalXP);
+
+    if (levelTitleEl) levelTitleEl.textContent = `Level ${current.level || 0} — ${current.title || "N/A"}`;
+
+    if (levelProgressEl) {
+      if (next) {
+        const range = next.minXP - current.minXP;
+        const progress = ((user.totalXP - current.minXP) / range) * 100;
+        levelProgressEl.style.width = `${Math.min(100, progress)}%`;
+      } else {
+        levelProgressEl.style.width = "100%";
+      }
+    }
+  }
+
+  // ---- BADGES ----
+  function renderBadges() {
+    if (!badgeContainer) return;
+    badgeContainer.innerHTML = "";
+
+    const earnedBadges = getEarnedBadges(user);
+    const earnedIds = new Set(earnedBadges.map(b => b.id));
+
+    badges.forEach(b => {
+      const earned = earnedIds.has(b.id);
+      const badge = document.createElement("div");
+      badge.className = `badge ${earned ? "earned" : "locked"}`;
+      badge.innerHTML = `
+        <img src="${b.icon}" alt="${b.name}" width="40" height="40">
+        <span>${b.name}</span>
+      `;
+      badge.title = `${b.description} (${b.criteria?.totalXP || 0} XP required)`;
+      badgeContainer.appendChild(badge);
+    });
+  }
+
+  // ---- COURSES ----
+  function renderCourses() {
+    if (!coursesContainer) return;
+    coursesContainer.innerHTML = "";
+
+    if (!user.lessonHistory || user.lessonHistory.length === 0) {
+      coursesContainer.innerHTML = "<p>No course progress yet.</p>";
+      return;
+    }
+
+    const courses = {};
+    user.lessonHistory.forEach(lesson => {
+      if (!courses[lesson.course]) courses[lesson.course] = [];
+      courses[lesson.course].push(lesson);
+    });
+
+    for (const [courseName, lessons] of Object.entries(courses)) {
+      const totalXP = lessons.reduce((sum, l) => sum + (l.xpEarned || 0), 0);
+      const maxXP = lessons.length * 100;
+      const progressPercent = Math.min(100, Math.round((totalXP / maxXP) * 100));
+
+      const card = document.createElement("div");
+      card.className = "course-card";
+      card.innerHTML = `
+        <h4>${courseName}</h4>
+        <div class="course-progress-bar">
+          <div class="course-progress" style="width:${progressPercent}%"></div>
+        </div>
+        <p>${totalXP} XP earned (${progressPercent}%)</p>
+      `;
+      coursesContainer.appendChild(card);
+    }
+  }
+
+  // ---- INIT ----
+  renderProfile();
+
+  // ---- LOGOUT ----
+  window.logout = function() {
+    sessionStorage.clear();
+    window.location.href = "index.html";
+  };
+});
+</script>
+
+</body>
+</html>

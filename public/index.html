@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizIt | Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <!-- Left panel -->
+    <div class="auth-left">
+    <div class="logo">QuizIt</div>
+    <div class="tagline">
+        Ready to begin your<br>
+        <span class="highlight">TOPCIT</span> Adventure?
+    </div>
+    <footer>©2025 QuizIt — All Rights Reserved | Privacy | Terms</footer>
+    </div>
+
+    <!-- Right panel -->
+    <div class="auth-right">
+      <div class="tabs">
+        <button id="loginTab" class="tab active">Login</button>
+        <button id="signupTab" class="tab">Sign Up</button>
+      </div>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm" class="form active">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Please enter your email and password</p>
+
+    <input type="email" id="loginEmail" placeholder="user@gmail.com" required />
+    <input type="password" id="loginPassword" placeholder="Password" required />
+
+    <p class="terms">
+        By logging in, you agree to our <a href="#">Terms & Conditions</a>.
+    </p>
+
+    <button type="submit" class="btn">Login →</button>
+
+    <p class="small">
+        <a href="#">Forgot Password?</a> |
+        <a href="#" id="switchToSignup">Create Account</a>
+    </p>
+
+    <p id="loginError" class="error">Invalid email or password. Please try again.</p>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signupForm" class="form">
+        <h2>Join QuizIt Today</h2>
+        <p class="subtitle">Start your journey towards success!</p>
+        <input type="text" placeholder="Full Name" required />
+        <input type="email" placeholder="Email Address" required />
+        <input type="password" placeholder="Password" required />
+        <p class="terms">By signing up, you agree to our <a href="#">Terms & Conditions</a>.</p>
+        <button type="submit" class="btn">Sign Up →</button>
+        <p class="small">
+            Already have an account? <a href="#" id="switchToLogin">Login</a>
+        </p>
+    </form>
+    </div>
+    </div>
+
+<script src="js/script.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // ================== CONFIG ==================
+  const LOCAL_USERS_KEY = "quizit_local_users";
+  const qs = (sel) => document.querySelector(sel);
+
+  // ✅ Auto-detect JSON Server base URL (works on Codespaces or local)
+  const BASE_URL =
+    location.hostname.includes("github.dev") || location.hostname.includes("app.github.dev")
+      ? `https://${location.hostname}/users`
+      : "http://localhost:3000/users";
+
+  // ================== ELEMENTS ==================
+  const loginForm = qs("#loginForm");
+  const loginEmail = qs("#loginEmail");
+  const loginPassword = qs("#loginPassword");
+  const loginError = qs("#loginError");
+  const signupForm = qs("#signupForm");
+
+  // ================== LOAD USERS ==================
+  async function loadUsers() {
+    let users = [];
+    try {
+      const response = await fetch(BASE_URL, { cache: "no-cache" });
+      if (!response.ok) throw new Error("Failed to fetch from server");
+
+      users = await response.json();
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+      console.log("✅ Users loaded from server:", users.length);
+    } catch (err) {
+      console.warn("⚠️ Server not reachable, loading from localStorage...", err);
+      const stored = localStorage.getItem(LOCAL_USERS_KEY);
+      if (stored) {
+        try {
+          users = JSON.parse(stored);
+          console.log("📦 Loaded users from localStorage:", users.length);
+        } catch (parseErr) {
+          console.error("❌ Failed to parse localStorage users:", parseErr);
+        }
+      }
+    }
+    return users;
+  }
+
+  // ================== LOGIN ==================
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      // Reset UI
+      loginError.textContent = "";
+      loginError.classList.remove("show");
+
+      const email = loginEmail.value.trim().toLowerCase();
+      const password = loginPassword.value.trim();
+
+      if (!email || !password) {
+        showError("Please enter both email and password.");
+        return;
+      }
+
+      const users = await loadUsers();
+      if (!users.length) {
+        showError("Unable to load user data. Please try again later.");
+        return;
+      }
+
+      const foundUser = users.find(
+        (user) => user.email.toLowerCase() === email && user.password === password
+      );
+
+      if (foundUser) {
+        sessionStorage.setItem("loggedInUser", JSON.stringify(foundUser));
+        console.log("✅ Login successful:", foundUser.fullname);
+        window.location.href = "homepage.html";
+      } else {
+        showError("Invalid email or password. Please try again.");
+      }
+    });
+  }
+
+  // ================== SIGNUP ==================
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fullname = e.target.querySelector('input[placeholder="Full Name"]').value.trim();
+      const email = e.target.querySelector('input[placeholder="Email Address"]').value.trim().toLowerCase();
+      const password = e.target.querySelector('input[placeholder="Password"]').value.trim();
+
+      if (!fullname || !email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        // ✅ Fetch existing users
+        const res = await fetch(BASE_URL);
+        if (!res.ok) throw new Error("Cannot connect to server.");
+        const users = await res.json();
+
+        // ✅ Check if email already exists
+        const userExists = users.some((user) => user.email.toLowerCase() === email);
+        if (userExists) {
+          alert("Email already exists. Please log in instead.");
+          return;
+        }
+
+        // ✅ Create new user
+        const newUser = {
+          fullname,
+          email,
+          password,
+          totalXP: 0,
+          myCourses: [],
+          lessonHistory: [],
+        };
+
+        // ✅ Add user to JSON Server
+        const addRes = await fetch(BASE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newUser),
+        });
+
+        if (!addRes.ok) throw new Error("Failed to register user.");
+        const savedUser = await addRes.json();
+
+        // ✅ Store in session & redirect
+        sessionStorage.setItem("loggedInUser", JSON.stringify(savedUser));
+        alert("Signup successful! Redirecting...");
+        window.location.href = "homepage.html";
+      } catch (error) {
+        console.error("Signup error:", error);
+        alert("Something went wrong. Please try again later.");
+      }
+    });
+  }
+
+  // ================== HELPER ==================
+  function showError(msg) {
+    loginError.textContent = msg;
+    loginError.classList.add("show");
+  }
+});
+
+</script>
+
+</body>
+</html>

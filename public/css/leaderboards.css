@@ -1,0 +1,119 @@
+/* ---------------- Leaderboard Section ---------------- */
+#leaderboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 10px;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.leaderboard-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.leaderboard-rank {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-right: 15px;
+  width: 40px;
+  text-align: center;
+  color: #001a66;
+}
+
+.leaderboard-item.top-rank {
+  border: 2px solid #00b4d8;
+  background: #e6f7ff;
+}
+
+.leaderboard-item.top-rank .leaderboard-rank {
+  color: #0077b6;
+}
+
+.leaderboard-item img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.leaderboard-name {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+  color: #001a66;
+}
+
+.course-progress {
+  display: flex;
+  gap: 6px;
+}
+
+.course-badge {
+  background: #f0f4f8;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #0077b6;
+}
+
+/* XP Display */
+.leaderboard-xp {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #00b4d8;
+  min-width: 70px;
+  text-align: right;
+}
+
+.leaderboard-item.logged-user {
+  border: 2px solid #ff9900;
+  background: #fff4e6;
+}
+
+.leaderboard-item.logged-user .leaderboard-rank,
+.leaderboard-item.logged-user .leaderboard-name {
+  color: #ff6600;
+  font-weight: 700;
+}
+
+.floating-rank-badge {
+  position: sticky;
+  top: 0;
+  background: #00b4d8;
+  color: #fff;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .leaderboard-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .leaderboard-xp {
+    text-align: left;
+  }
+}

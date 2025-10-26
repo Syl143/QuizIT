@@ -1,0 +1,85 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "fullname": "William Gan-Gan",
+      "email": "william@gmail.com",
+      "password": "12345",
+      "totalXP": 120,
+      "myCourses": [
+        {
+          "id": 1,
+          "courseKey": "python"
+        },
+        {
+          "id": 2,
+          "courseKey": "htmlcss"
+        },
+        {
+          "id": 3,
+          "courseKey": "sql"
+        },
+        {
+          "id": 4,
+          "courseKey": "java"
+        }
+      ],
+      "lessonHistory": [
+        {
+          "course": "Python Programming",
+          "lessonTitle": "Lesson 1: Introduction to Python",
+          "xpEarned": 35,
+          "dateCompleted": "10/25/2025"
+        },
+        {
+          "course": "Python Programming",
+          "lessonTitle": "Lesson 2: Variables and Data Types",
+          "xpEarned": 45,
+          "dateCompleted": "10/26/2025"
+        },
+        {
+          "course": "Python Programming",
+          "lessonTitle": "Lesson 3: Control Flow and Loops",
+          "xpEarned": 40,
+          "dateCompleted": "10/26/2025"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "fullname": "Anna Cruz",
+      "email": "anna@example.com",
+      "password": "abc123",
+      "totalXP": 960,
+      "myCourses": [
+        {
+          "id": 1,
+          "courseKey": "htmlcss"
+        },
+        {
+          "id": 2,
+          "courseKey": "sql"
+        }
+      ],
+      "lessonHistory": []
+    },
+    {
+      "id": "3",
+      "fullname": "Mark Dela Rosa",
+      "email": "mark@example.com",
+      "password": "markpass",
+      "totalXP": 1200,
+      "myCourses": [
+        {
+          "id": 1,
+          "courseKey": "python"
+        },
+        {
+          "id": 2,
+          "courseKey": "java"
+        }
+      ],
+      "lessonHistory": []
+    }
+  ]
+}

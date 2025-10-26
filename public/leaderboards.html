@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuizIt | Dashboard</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="css/homepage.css" />
+    <link rel="stylesheet" href="css/quizzes.css" />
+     <link rel="stylesheet" href="css/leaderboards.css" />
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+        <div class="logo">QuizIt</div>
+        <img
+            src="https://img.icons8.com/?size=100&id=105515&format=png&color=FFFFFF"
+            alt="Toggle Sidebar"
+            class="toggle-icon"
+            id="toggleSidebar"
+        />
+        </div>
+        <ul class="menu">
+            <li><a href="homepage.html"><i class="fa-solid fa-house"></i><span>Home</span></a></li>
+            
+            <li>
+                <a href="quizzes.html">
+                <img src="https://img.icons8.com/?size=100&id=rx6rZTa05YPn&format=png&color=FFFFFF" 
+                    alt="Quiz Icon" class="menu-icon" />
+                <span>Quizzes</span>
+                </a>
+            </li>
+            
+            <li class="active"><a href="leaderboards.html"><i class="fa-solid fa-trophy"></i><span>Leaderboards</span></a></li>
+            
+            <li><a href="community.html"><i class="fa-solid fa-comments"></i><span>Community</span></a></li>
+            
+            <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a></li>
+        </ul>
+        <div class="logout" onclick="logout()">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+    <header>
+        <h1 class="page-title">Leaderboards</h1>
+    
+      <div class="profile-card">
+        <img
+          src="https://img.icons8.com/color/96/000000/user-male-circle--v1.png"
+          alt="Profile"
+        />
+        <div class="profile-info">
+          <h3>User Name</h3>
+          <p>BSIT Student</p>
+        </div>
+      </div>
+    </header>
+    <p class="page-subtitle">Rise to the top!</p>
+        
+    <!-- Leaderboards Section -->
+    <section id="leaderboard-section" class="section">
+    <div id="leaderboard-container">
+    </div>
+    </section>
+
+    <footer>© 2025 QuizIt — All Rights Reserved</footer>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // ----- CONFIG -----
+  const API_BASE = "http://localhost:3000";
+  const DB_ENDPOINT = `${API_BASE}/db`;
+  const LOCAL_USERS_KEY = "quizit_local_users";
+
+  const qs = sel => document.querySelector(sel);
+  const qsa = sel => Array.from(document.querySelectorAll(sel));
+
+  // ----- TAB SWITCHING -----
+  const tabs = qsa(".tab");
+  const contents = qsa(".tab-content");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
+      tab.classList.add("active");
+      const target = document.getElementById(tab.dataset.tab);
+      if (target) target.classList.add("active");
+    });
+  });
+
+  // ----- SESSION CHECK -----
+  const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if (!sessionUser) {
+    alert("Please log in first.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ----- LOAD DATA FROM db.json -----
+  let users = [];
+  try {
+    const res = await fetch(DB_ENDPOINT);
+    if (!res.ok) throw new Error("Server unavailable");
+    const db = await res.json();
+    users = db.users || [];
+  } catch (err) {
+    console.warn("⚠️ json-server unavailable, using localStorage fallback...");
+    const stored = localStorage.getItem(LOCAL_USERS_KEY);
+    users = stored ? JSON.parse(stored) : [];
+  }
+
+  // ----- FIND LOGGED-IN USER -----
+  let user = users.find(u => u.email === sessionUser.email);
+  if (!user) {
+    alert("User not found.");
+    sessionStorage.clear();
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ----- SIDEBAR TOGGLE -----
+  const sidebar = qs(".sidebar");
+  const toggleBtn = qs("#toggleSidebar");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
+    });
+  }
+
+  // ----- RENDER PROFILE INFO -----
+  const profileNameEl = qs(".profile-info h3");
+  if (profileNameEl) profileNameEl.textContent = user.fullname;
+
+  // ----- RENDER LEADERBOARD -----
+  const leaderboardContainer = qs("#leaderboard-container");
+  if (!leaderboardContainer) return;
+
+  const sortedUsers = [...users].sort((a, b) => (b.totalXP || 0) - (a.totalXP || 0));
+
+  let loggedUserRank = 0;
+
+  leaderboardContainer.innerHTML = ""; // clear existing entries
+
+  sortedUsers.forEach((u, index) => {
+    const item = document.createElement("div");
+    item.className = `leaderboard-item ${index < 3 ? "top-rank" : ""}`;
+    if (u.email === sessionUser.email) {
+      item.classList.add("logged-user");
+      loggedUserRank = index + 1;
+      setTimeout(() => {
+        item.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+
+    const courseBadges = Array.isArray(u.myCourses)
+      ? u.myCourses.map(c => `<span class="course-badge">${c.courseKey?.toUpperCase?.() || "N/A"}</span>`).join("")
+      : "";
+
+    item.innerHTML = `
+      <div class="leaderboard-rank">#${index + 1}</div>
+      <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" alt="User">
+      <div class="leaderboard-name">
+        ${u.fullname || "Unknown User"}
+        <div class="course-progress">${courseBadges}</div>
+      </div>
+      <div class="leaderboard-xp">${u.totalXP || 0} XP</div>
+    `;
+
+    leaderboardContainer.appendChild(item);
+  });
+
+  // ----- SHOW FLOATING RANK BADGE -----
+  if (loggedUserRank > 0) {
+    const floatingBadge = document.createElement("div");
+    floatingBadge.className = "floating-rank-badge";
+    floatingBadge.innerHTML = `🏆 You are #${loggedUserRank}`;
+    leaderboardContainer.prepend(floatingBadge);
+  }
+
+  // ----- LOGOUT -----
+  window.logout = function () {
+    sessionStorage.clear();
+    window.location.href = "index.html";
+  };
+});
+</script>
+</body>
+</html>

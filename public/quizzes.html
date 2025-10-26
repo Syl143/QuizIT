@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuizIt | Dashboard</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="css/homepage.css" />
+     <link rel="stylesheet" href="css/quizzes.css" />
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+        <div class="logo">QuizIt</div>
+        <img
+            src="https://img.icons8.com/?size=100&id=105515&format=png&color=FFFFFF"
+            alt="Toggle Sidebar"
+            class="toggle-icon"
+            id="toggleSidebar"
+        />
+        </div>
+        <ul class="menu">
+            <li><a href="homepage.html"><i class="fa-solid fa-house"></i><span>Home</span></a></li>
+            
+            <li class="active">
+                <a href="quizzes.html">
+                <img src="https://img.icons8.com/?size=100&id=rx6rZTa05YPn&format=png&color=FFFFFF" 
+                    alt="Quiz Icon" class="menu-icon" />
+                <span>Quizzes</span>
+                </a>
+            </li>
+            
+            <li><a href="leaderboards.html"><i class="fa-solid fa-trophy"></i><span>Leaderboards</span></a></li>
+            
+            <li><a href="community.html"><i class="fa-solid fa-comments"></i><span>Community</span></a></li>
+            
+            <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a></li>
+        </ul>
+        <div class="logout" onclick="logout()">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+          <h1 class="page-title">Quizzes</h1>
+      
+        <div class="profile-card">
+          <img
+            src="https://img.icons8.com/color/96/000000/user-male-circle--v1.png"
+            alt="Profile"
+          />
+          <div class="profile-info">
+            <h3>User Name</h3>
+            <p>BSIT Student</p>
+          </div>
+        </div>
+      </header>
+      <p class="page-subtitle">Choose your mode and jump into the action!</p>
+        <div class="game-modes">
+            <div class="game-card" id="play-computer">
+            <div class="game-icon">
+                <img src="assets/game1.png" alt="Computer Mode" />
+            </div>
+            <div class="game-info">
+                <h3>Play vs Computer</h3>
+                <p>Challenge yourself against AI opponents. Show your skills!</p>
+            </div>
+            <button onclick="startComputerGame()">Play</button>
+            </div>
+
+            <div class="game-card" id="play-user">
+            <div class="game-icon">
+                <img src="assets/game2.png" alt="User Mode" />
+            </div>
+            <div class="game-info">
+                <h3>Play vs Computer</h3>
+                <p>Face off quizit bot. Who will win?</p>
+            </div>
+            <button onclick="startUserGame()">Play</button>
+            </div>
+        </div>
+    
+      <div id="gamePanel" style="display:none; flex-direction:column; align-items:center; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); justify-content:center;">
+        <div style="background:#fff; padding:20px; border-radius:12px; max-width:400px; text-align:center;">
+          <h3 id="panelTitle">Game Title</h3>
+          <p id="panelDescription">Game Description</p>
+          <button id="goToGameBtn">Go to Game</button>
+          <button onclick="closeGamePanel()" style="margin-top:10px;">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Computer Game Container -->
+      <div id="computerGameContainer" class="quiz-card" style="display:none;">
+        <h2 class="quiz-title">Play vs Computer</h2>
+
+        <!-- Back Button -->
+        <button id="backToModesFromGame" class="back-btn">← Back to Game Modes</button>
+
+        <div id="timer" class="timer">Time: 60s</div>
+        <div id="scoreBoard">
+          <span id="userScore">You: 0</span> | 
+          <span id="botScore">Bot: 0</span>
+        </div>
+        <div id="questionContainer">
+          <p id="questionText">Question appears here</p>
+          <div id="answerButtons" class="answer-buttons"></div>
+        </div>
+        <div id="gameResult" style="display:none;">
+          <h3 id="resultText"></h3>
+          <button onclick="restartGame()">Play Again</button>
+        </div>
+        <div id="timesUpOverlay">TIME'S UP!</div>
+      </div>
+      <!-- Hangman Game Container -->
+      <div id="hangmanGameContainer" style="display:none; position: relative;">
+        <h2>Guess the Concept</h2>
+        <button class="backhangman-btn" id="closeHangmanBtn">×</button>
+        <div class="hangman-flex-container">
+          <div class="hangman-left">
+            <canvas id="hangmanCanvasUnique" style="width: 400px; height: 350px;"></canvas>
+            <div id="wrongGuess">Wrong Guesses: 0 / 6</div>
+          </div>
+          <div class="hangman-right">
+            <div id="hangmanWordContainer" class="hangman-word"></div>
+            <div id="hangmanDescription" class="hangman-description"></div>
+            <div id="hangmanLetterButtons" class="letter-buttons"></div>
+          </div>
+        </div>
+        <div id="hangmanGameResult" class="result" style="display:none;">
+          <h3 id="hangmanResultText"></h3>
+          <div id="hangmanTermDescription" class="hangman-description"></div>
+          <button>Play Again</button>
+        </div>
+      </div>
+    <footer>© 2025 QuizIt — All Rights Reserved</footer>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // ----- CONFIG -----
+  const API_BASE = "http://localhost:3000";
+  const USERS_ENDPOINT = `${API_BASE}/users`;;
+  const LESSONS_PATH = "data/lessons.json";
+  const LOCAL_USERS_KEY = "quizit_local_users";
+
+  const qs = sel => document.querySelector(sel);
+  const qsa = sel => Array.from(document.querySelectorAll(sel));
+
+  // ----- TAB SWITCHING -----
+  const tabs = qsa(".tab");
+  const contents = qsa(".tab-content");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
+      tab.classList.add("active");
+      const target = document.getElementById(tab.dataset.tab);
+      if (target) target.classList.add("active");
+    });
+  });
+
+  // ----- SESSION CHECK -----
+  const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if (!sessionUser) {
+    alert("Please log in first.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ----- LOAD USERS -----
+  let users = [];
+  try {
+    const res = await fetch(USERS_ENDPOINT); 
+    if (!res.ok) throw new Error("json-server not available");
+    users = await res.json();
+  } catch (err) {
+    console.warn("json-server unavailable, falling back to localStorage...");
+    const stored = localStorage.getItem(LOCAL_USERS_KEY);
+    users = stored ? JSON.parse(stored) : [];
+  }
+
+  // Find logged-in user
+  let user = users.find(u => u.email === sessionUser.email);
+  if (!user) {
+    alert("User not found.");
+    sessionStorage.clear();
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ----- ELEMENTS -----
+  const profileNameEl = qs(".profile-info h3");
+  // ----- PANEL & GAME SELECTION -----
+  const gamePanel = document.getElementById("gamePanel");
+  const panelTitle = document.getElementById("panelTitle");
+  const panelDescription = document.getElementById("panelDescription");
+  const goToGameBtn = document.getElementById("goToGameBtn");
+
+  function openGamePanel(title, description, gameType) {
+    panelTitle.textContent = title;
+    panelDescription.textContent = description;
+
+    document.querySelector(".game-modes").style.display = "none";
+
+    goToGameBtn.onclick = () => {
+      closeGamePanel();
+      if (gameType === "computer-mode") startComputerGame();
+      else if (gameType === "user-mode") alert("User mode not implemented yet!");
+    };
+
+    gamePanel.style.display = "flex";
+  }
+
+  function closeGamePanel() {
+    gamePanel.style.display = "none";
+  }
+
+  document.getElementById("play-computer").querySelector("button").onclick = () => {
+    openGamePanel(
+      "Play vs Computer",
+      "Challenge yourself against AI opponents. Show your skills!",
+      "computer-mode"
+    );
+  };
+
+  document.getElementById("play-user").querySelector("button").onclick = () => {
+    document.querySelector(".game-modes").style.display = "none";
+    startHangmanGameUnique();
+  };
+
+  document.getElementById("closeHangmanBtn").onclick = () => {
+    document.getElementById("hangmanGameContainer").style.display = "none";
+    document.querySelector(".game-modes").style.display = "flex";
+  };
+
+  // ----- GAME ELEMENTS -----
+  const itQuestions = [
+    { question: "What does HTML stand for?", answers: ["Hyper Text Markup Language", "Hot Mail", "High Text Mode", "Hyperlinks and Text Markup"], correct: 0 },
+    { question: "Which language is primarily used for styling web pages?", answers: ["HTML", "CSS", "JavaScript", "Python"], correct: 1 },
+    { question: "What does CPU stand for?", answers: ["Central Process Unit", "Central Processing Unit", "Computer Personal Unit", "Control Processing Unit"], correct: 1 },
+    { question: "Which protocol is used to send emails?", answers: ["HTTP", "FTP", "SMTP", "TCP"], correct: 2 },
+    { question: "Which is NOT a programming language?", answers: ["Python", "JavaScript", "HTML", "C++"], correct: 2 },
+    { question: "What is the main function of RAM?", answers: ["Store permanent data", "Store temporary data for processing", "Manage power supply", "Connect to internet"], correct: 1 },
+    { question: "Which company developed the Windows OS?", answers: ["Apple", "Microsoft", "Google", "IBM"], correct: 1 },
+    { question: "Which tag is used for inserting an image in HTML?", answers: ["<img>", "<picture>", "<image>", "<src>"], correct: 0 },
+    { question: "What does DNS stand for?", answers: ["Domain Name System", "Digital Name Server", "Data Network Service", "Domain Numeric System"], correct: 0 },
+    { question: "Which is an example of a NoSQL database?", answers: ["MySQL", "PostgreSQL", "MongoDB", "Oracle"], correct: 2 },
+    { question: "Which programming language is known as the 'mother of all languages'?", answers: ["C", "Fortran", "Assembly", "Java"], correct: 0 },
+    { question: "What does 'IP' stand for in 'IP address'?", answers: ["Internet Protocol", "Internal Protocol", "Internet Processor", "Internal Processor"], correct: 0 },
+    { question: "Which company developed the first computer mouse?", answers: ["IBM", "Microsoft", "Xerox", "Apple"], correct: 2 },
+    { question: "What does 'URL' stand for?", answers: ["Uniform Resource Locator", "Uniform Resource Link", "Universal Resource Locator", "Universal Resource Link"], correct: 0 },
+    { question: "Which programming language is primarily used for web development?", answers: ["Python", "JavaScript", "C++", "Java"], correct: 1 },
+    { question: "What does 'GUI' stand for?", answers: ["General User Interface", "Graphical User Interface", "General Unified Interface", "Graphical Unified Interface"], correct: 1 },
+    { question: "Which company developed the first personal computer?", answers: ["IBM", "Apple", "Microsoft", "Compaq"], correct: 1 },
+    { question: "What does 'HTTP' stand for?", answers: ["HyperText Transfer Protocol", "HyperText Transmission Protocol", "Hyper Transfer Text Protocol", "Hyper Transfer Transmission Protocol"], correct: 0 },
+    { question: "Which programming language is known for its snake logo?", answers: ["Python", "Ruby", "Java", "C++"], correct: 0 },
+    { question: "What does 'USB' stand for?", answers: ["Universal Serial Bus", "Universal System Bus", "Unified Serial Bus", "Unified System Bus"], correct: 0 },
+    { question: "Which company developed the first smartphone?", answers: ["IBM", "Apple", "Nokia", "Motorola"], correct: 0 },
+    { question: "What does 'LAN' stand for?", answers: ["Local Area Network", "Large Area Network", "Long Area Network", "Limited Area Network"], correct: 0 },
+    { question: "Which programming language is known for its use in artificial intelligence?", answers: ["Python", "Java", "C++", "Lisp"], correct: 0 },
+    { question: "What does 'BIOS' stand for?", answers: ["Basic Integrated Operating System", "Basic Input Output System", "Binary Input Output System", "Basic Internal Operating System"], correct: 1 },
+    { question: "Which company developed the first web browser?", answers: ["Microsoft", "Netscape", "Google", "Mosaic Communications"], correct: 3 },
+    { question: "What does 'SQL' stand for?", answers: ["Structured Query Language", "Structured Question Language", "Simple Query Language", "Standard Query Language"], correct: 0 },
+    { question: "Which programming language is known for its use in web development?", answers: ["Python", "JavaScript", "C++", "Ruby"], correct: 1 },
+    { question: "What does 'RAM' stand for?", answers: ["Random Access Memory", "Read Access Memory", "Readily Available Memory", "Random Available Memory"], correct: 0 },
+    { question: "Which company developed the first graphical user interface?", answers: ["Apple", "Microsoft", "Xerox", "IBM"], correct: 2 },
+    { question: "What does 'ROM' stand for?", answers: ["Read-Only Memory", "Random-Only Memory", "Read-Only Module", "Random-Only Module"], correct: 0 },
+    { question: "Which programming language is known for its use in data analysis?", answers: ["Python", "Java", "C++", "R"], correct: 0 },
+    { question: "What does 'FTP' stand for?", answers: ["File Transfer Protocol", "File Transmission Protocol", "File Transport Protocol", "File Transfer Program"], correct: 0 },
+    { question: "Which company developed the first computer virus?", answers: ["IBM", "Microsoft", "Apple", "Cohen and Mills"], correct: 3 },
+    { question: "What does 'VPN' stand for?", answers: ["Virtual Private Network", "Virtual Public Network", "Virtual Protected Network", "Virtual Private Node"], correct: 0 },
+    { question: "Which programming language is known for its use in mobile app development?", answers: ["Python", "JavaScript", "Swift", "Java"], correct: 2 },
+    { question: "What does 'API' stand for?", answers: ["Application Programming Interface", "Application Program Interface", "Applied Programming Interface", "Applied Program Interface"], correct: 0 },
+    { question: "Which company developed the first computer mouse?", answers: ["IBM", "Microsoft", "Xerox", "Apple"], correct: 2 },
+    { question: "What does 'URL' stand for?", answers: ["Uniform Resource Locator", "Uniform Resource Link", "Universal Resource Locator", "Universal Resource Link"], correct: 0 },
+    { question: "Which programming language is known for its use in web development?", answers: ["Python", "JavaScript", "C++", "Java"], correct: 1 },
+    { question: "What does 'GUI' stand for?", answers: ["General User Interface", "Graphical User Interface", "General Unified Interface", "Graphical Unified Interface"], correct: 1 },
+    { question: "Which company developed the first personal computer?", answers: ["IBM", "Apple", "Microsoft", "Compaq"], correct: 1 },
+    { question: "What does 'HTTP' stand for?", answers: ["HyperText Transfer Protocol", "HyperText Transmission Protocol", "Hyper Transfer Text Protocol", "Hyper Transfer Transmission Protocol"], correct: 0 },
+    { question: "Which programming language is known for its snake logo?", answers: ["Python", "Ruby", "Java", "C++"], correct: 0 },
+    { question: "What does 'USB' stand for?", answers: ["Universal Serial Bus", "Universal System Bus", "Unified Serial Bus", "Unified System Bus"], correct: 0 },
+    { question: "Which company developed the first smartphone?", answers: ["IBM", "Apple", "Nokia", "Motorola"], correct: 0 },
+    { question: "What does 'LAN' stand for?", answers: ["Local Area Network", "Large Area Network", "Long Area Network", "Limited Area Network"], correct: 0 },
+    { question: "Which programming language is known for its use in artificial intelligence?", answers: ["Python", "Java", "C++", "Lisp"], correct: 0 },
+    { question: "What does 'BIOS' stand for?", answers: ["Basic Integrated Operating System", "Basic Input Output System", "Binary Input Output System", "Basic Internal Operating System"], correct: 1 },
+    { question: "Which company developed the first web browser?", answers: ["Microsoft", "Netscape", "Google", "Mosaic Communications"], correct: 3 },
+    { question: "What does 'SQL' stand for?", answers: ["Structured Query Language", "Structured Question Language", "Simple Query Language", "Standard Query Language"], correct: 0 },
+    { question: "Which programming language is known for its use in web development?", answers: ["Python", "JavaScript", "C++", "Ruby"], correct: 1 },
+    { question: "What does 'RAM' stand for?", answers: ["Random Access Memory", "Read Access Memory", "Readily Available Memory", "Random Available Memory"], correct: 0 },
+    { question: "Which company developed the first graphical user interface?", answers: ["Apple", "Microsoft", "Xerox", "IBM"], correct: 2 },
+    { question: "What does 'ROM' stand for?", answers: ["Read-Only Memory", "Random-Only Memory", "Read-Only Module", "Random-Only Module"], correct: 0 },
+    { question: "Which programming language is known for its use in data analysis?", answers: ["Python", "Java", "C++", "R"], correct: 0 },
+    { question: "What does 'FTP' stand for?", answers: ["File Transfer Protocol", "File Transmission Protocol", "File Transport Protocol", "File Transfer Program"], correct: 0 },
+    { question: "Which company developed the first computer virus?", answers: ["IBM", "Microsoft", "Apple", "Cohen and Mills"], correct: 3 },
+    { question: "What does 'VPN' stand for?", answers: ["Virtual Private Network", "Virtual Public Network", "Virtual Protected Network", "Virtual Private Node"], correct: 0 },
+  ];
+
+  let userScore = 0;
+  let botScore = 0;
+  let timer = 60;
+  let currentQuestionIndex = 0;
+  let shuffledQuestions = [];
+  let intervalId = null;
+
+  const timerEl = document.getElementById("timer");
+  const userScoreEl = document.getElementById("userScore");
+  const botScoreEl = document.getElementById("botScore");
+  const questionText = document.getElementById("questionText");
+  const answerButtons = document.getElementById("answerButtons");
+  const gameResult = document.getElementById("gameResult");
+  const resultText = document.getElementById("resultText");
+
+  // ----- START GAME -----
+  function startComputerGame() {
+    const container = document.getElementById("computerGameContainer");
+    container.style.display = "block";
+
+    userScore = 0;
+    botScore = 0;
+    timer = 60;
+    userScoreEl.textContent = `You: ${userScore}`;
+    botScoreEl.textContent = `Bot: ${botScore}`;
+    gameResult.style.display = "none";
+
+    shuffledQuestions = [...itQuestions].sort(() => Math.random() - 0.5);
+    currentQuestionIndex = 0;
+
+    showQuestion();
+    startTimer();
+  }
+
+  // ----- SHOW QUESTION -----
+  function showQuestion() {
+    if (currentQuestionIndex >= shuffledQuestions.length) {
+      endGame();
+      return;
+    }
+
+    const q = shuffledQuestions[currentQuestionIndex];
+    questionText.textContent = q.question;
+    answerButtons.innerHTML = "";
+
+    q.answers.forEach((ans, idx) => {
+      const btn = document.createElement("button");
+      btn.textContent = ans;
+      btn.onclick = () => selectAnswer(idx);
+      answerButtons.appendChild(btn);
+    });
+  }
+
+  // ----- SELECT ANSWER -----
+  function selectAnswer(selectedIndex) {
+    const currentQ = shuffledQuestions[currentQuestionIndex];
+
+    if (selectedIndex === currentQ.correct) userScore++;
+
+    Array.from(answerButtons.children).forEach(btn => btn.disabled = true);
+
+    setTimeout(() => {
+      if (Math.random() < 0.5) botScore++; 
+      userScoreEl.textContent = `You: ${userScore}`;
+      botScoreEl.textContent = `Bot: ${botScore}`;
+      currentQuestionIndex++;
+      showQuestion();
+    }, 500);
+  }
+
+  // ----- TIMER -----
+  function startTimer() {
+    const interval = setInterval(() => {
+      timer--;
+      timerEl.textContent = `Time: ${timer}s`;
+
+      if (timer <= 0) {
+        clearInterval(interval);
+
+        const overlay = document.getElementById("timesUpOverlay");
+        overlay.style.display = "flex";
+
+        const audio = new Audio("assets/times-up.mp3"); 
+        audio.play();
+
+        // Add shake animation class
+        overlay.classList.add("shake");
+
+        setTimeout(() => {
+          overlay.style.display = "none";
+          overlay.classList.remove("shake");
+          endGame();
+        }, 1500);
+      }
+    }, 1000);
+  }
+  // ----- END GAME -----
+  function endGame() {
+    questionText.textContent = "";
+    answerButtons.innerHTML = "";
+    gameResult.style.display = "block";
+
+    if (userScore > botScore) resultText.textContent = "You Win! 🎉";
+    else if (userScore < botScore) resultText.textContent = "Bot Wins 🤖";
+    else resultText.textContent = "It's a Draw!";
+  }
+
+  // ----- RESTART -----
+  function restartGame() {
+    startComputerGame();
+  }
+
+  // ----- Hangman Terms -----
+  const hangmanTerms = [
+    { term: "ALGORITHM", description: "A step-by-step procedure to solve a problem or perform a task." },
+    { term: "DATABASE", description: "A structured collection of data that can be accessed and managed." },
+    { term: "COMPILER", description: "A program that translates source code into executable machine code." },
+    { term: "NETWORK", description: "A system of connected computers that share resources and information." },
+    { term: "ENCRYPTION", description: "The process of encoding data to prevent unauthorized access." },
+    { term: "OPERATING SYSTEM", description: "Software that manages hardware and provides services for programs." },
+    { term: "VARIABLE", description: "A storage location in programming that holds a value." },
+    { term: "FUNCTION", description: "A block of code designed to perform a particular task." },
+    { term: "ARRAY", description: "A collection of elements identified by index or key." },
+    { term: "DEBUGGING", description: "The process of finding and fixing errors in code." }
+  ];
+
+  // ----- Canvas Setup -----
+  const canvasUnique = document.getElementById("hangmanCanvasUnique");
+  const ctxUnique = canvasUnique.getContext("2d");
+
+  function scaleCanvasUnique() {
+    const ratio = window.devicePixelRatio || 1;
+
+    const width = 500;
+    const height = 450;
+
+    canvasUnique.width = width * ratio;
+    canvasUnique.height = height * ratio;
+
+    canvasUnique.style.width = width + "px";
+    canvasUnique.style.height = height + "px";
+
+    ctxUnique.setTransform(1, 0, 0, 1, 0, 0);
+    ctxUnique.scale(ratio, ratio);
+
+    ctxUnique.lineWidth = 4;
+    ctxUnique.strokeStyle = "#023e8a";
+  }
+
+  scaleCanvasUnique();
+  window.addEventListener("resize", scaleCanvasUnique);
+
+  scaleCanvasUnique();
+
+  window.addEventListener("resize", scaleCanvasUnique);
+
+  // ----- Draw gallows -----
+  function drawGallowsUnique() {
+    ctxUnique.clearRect(0, 0, canvasUnique.width, canvasUnique.height);
+
+    // Base
+    ctxUnique.beginPath();
+    ctxUnique.moveTo(50, 400);
+    ctxUnique.lineTo(250, 400);
+    ctxUnique.stroke();
+
+    // Pole
+    ctxUnique.beginPath();
+    ctxUnique.moveTo(100, 400);
+    ctxUnique.lineTo(100, 50);
+    ctxUnique.stroke();
+
+    // Beam
+    ctxUnique.beginPath();
+    ctxUnique.moveTo(100, 50);
+    ctxUnique.lineTo(300, 50);
+    ctxUnique.stroke();
+
+    // Rope
+    ctxUnique.beginPath();
+    ctxUnique.moveTo(300, 50);
+    ctxUnique.lineTo(300, 100);
+    ctxUnique.stroke();
+  }
+
+  function drawHangmanPartUnique(wrongGuesses) {
+    switch(wrongGuesses) {
+      case 1: ctxUnique.beginPath(); ctxUnique.arc(300, 130, 30, 0, Math.PI*2); ctxUnique.stroke(); break; // head
+      case 2: ctxUnique.beginPath(); ctxUnique.moveTo(300, 160); ctxUnique.lineTo(300, 270); ctxUnique.stroke(); break; // body
+      case 3: ctxUnique.beginPath(); ctxUnique.moveTo(300, 180); ctxUnique.lineTo(250, 230); ctxUnique.stroke(); break; // left arm
+      case 4: ctxUnique.beginPath(); ctxUnique.moveTo(300, 180); ctxUnique.lineTo(350, 230); ctxUnique.stroke(); break; // right arm
+      case 5: ctxUnique.beginPath(); ctxUnique.moveTo(300, 270); ctxUnique.lineTo(250, 330); ctxUnique.stroke(); break; // left leg
+      case 6: ctxUnique.beginPath(); ctxUnique.moveTo(300, 270); ctxUnique.lineTo(350, 330); ctxUnique.stroke(); break; // right leg
+    }
+  }
+
+  // ----- Game Variables -----
+  let hangmanWordUnique = "";
+  let hangmanGuessedLettersUnique = [];
+  let hangmanWrongGuessesUnique = 0;
+  const hangmanMaxWrongUnique = 6;
+  const wrongGuessEl = document.getElementById("wrongGuess");
+
+  // Elements
+  const wordContainerUnique = document.getElementById("hangmanWordContainer");
+  const letterButtonsUnique = document.getElementById("hangmanLetterButtons");
+  const resultDivUnique = document.getElementById("hangmanGameResult");
+  const resultTextUnique = document.getElementById("hangmanResultText");
+  const descriptionDivUnique = document.getElementById("hangmanDescription");
+  const timerElUnique = document.getElementById("timer");
+
+  // ----- Start Game -----
+  function startHangmanGameUnique() {
+    document.getElementById("hangmanGameContainer").style.display = "block";
+
+    hangmanGuessedLettersUnique = [];
+    hangmanWrongGuessesUnique = 0;
+    resultDivUnique.style.display = "none";
+    resultTextUnique.textContent = "";
+    descriptionDivUnique.textContent = "";
+    descriptionDivUnique.classList.remove("show");
+    wrongGuessEl.textContent = `Wrong Guesses: ${hangmanWrongGuessesUnique} / 6`;
+
+    const randomTerm = hangmanTerms[Math.floor(Math.random() * hangmanTerms.length)];
+    hangmanWordUnique = randomTerm.term;
+
+    descriptionDivUnique.textContent = randomTerm.description;
+    setTimeout(() => {
+      descriptionDivUnique.classList.add("show");
+    }, 100); 
+
+    drawGallowsUnique();
+    renderWordUnique();
+    renderLetterButtonsUnique();
+  }
+
+
+  // Render word blanks
+  function renderWordUnique() {
+    const display = hangmanWordUnique.split("").map(l => hangmanGuessedLettersUnique.includes(l) ? l : "_").join(" ");
+    wordContainerUnique.textContent = display;
+  }
+
+  // Render letter buttons
+  function renderLetterButtonsUnique() {
+    letterButtonsUnique.innerHTML = "";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letter => {
+      const btn = document.createElement("button");
+      btn.textContent = letter;
+      btn.disabled = hangmanGuessedLettersUnique.includes(letter);
+      btn.onclick = () => handleGuessUnique(letter);
+      letterButtonsUnique.appendChild(btn);
+    });
+  }
+
+  // Handle letter guess
+  function handleGuessUnique(letter) {
+    hangmanGuessedLettersUnique.push(letter);
+
+    if (!hangmanWordUnique.includes(letter)) {
+      hangmanWrongGuessesUnique++;
+      drawHangmanPartUnique(hangmanWrongGuessesUnique);
+    }
+    wrongGuessEl.textContent = `Wrong Guesses: ${hangmanWrongGuessesUnique} / ${hangmanMaxWrongUnique}`;
+
+    renderWordUnique();
+    renderLetterButtonsUnique();
+    checkGameOverUnique();
+  }
+
+  // ----- Check Win/Lose -----
+  function checkGameOverUnique() {
+    if (!wordContainerUnique.textContent.includes("_")) {
+      resultDivUnique.style.display = "block";
+      resultTextUnique.textContent = "You Win! 🎉";
+    } else if (hangmanWrongGuessesUnique >= hangmanMaxWrongUnique) {
+      resultDivUnique.style.display = "block";
+      resultTextUnique.textContent = `You Lose! The word was: ${hangmanWordUnique}`;
+      descriptionDivUnique.classList.remove("show");
+    }
+  }
+  document.getElementById("closeHangmanBtn").onclick = () => {
+    document.getElementById("hangmanGameContainer").style.display = "none";
+    document.querySelector(".game-modes").style.display = "flex";
+  };
+
+ const playAgainBtn = document.querySelector("#hangmanGameResult button");
+  if (playAgainBtn) {
+    playAgainBtn.onclick = () => startHangmanGameUnique();
+  }
+  // ----- RENDER FUNCTIONS -----
+  function renderProfile() {
+    profileNameEl.textContent = user.fullname;
+    updateXP();
+  }
+  const backToModesBtnGame = document.getElementById("backToModesFromGame");
+
+  backToModesBtnGame.onclick = () => {
+    document.getElementById("computerGameContainer").style.display = "none"; 
+    document.querySelector(".game-modes").style.display = "flex"; 
+    timer = 60;
+    userScore = 0;
+    botScore = 0;
+    currentQuestionIndex = 0;
+    questionText.textContent = "";
+    answerButtons.innerHTML = "";
+    gameResult.style.display = "none";
+  };
+  // ----- INITIALIZE -----
+  renderProfile();
+
+  // ----- LOGOUT -----
+  window.logout = function() {
+    sessionStorage.clear();
+    window.location.href = "index.html";
+  };
+
+const sidebar = document.querySelector('.sidebar');
+  const toggleBtn = document.getElementById('toggleSidebar');
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+  });
+});
+const sidebar = document.querySelector('.sidebar');
+  const toggleBtn = document.getElementById('toggleSidebar');
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+});
+
+</script>
+</body>
+</html>

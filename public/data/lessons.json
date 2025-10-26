@@ -1,0 +1,1021 @@
+{
+  "python": {
+    "title": "Python Programming",
+    "description": "Master the fundamentals of Python — from syntax and loops to OOP, algorithms, and debugging. Designed for those preparing for the TOPCIT exam software domain.",
+    "icon": "https://img.icons8.com/color/96/python--v1.png",
+    "progress": 85,
+    "lessons": [
+      {
+        "title": "Lesson 1: Introduction to Python",
+        "content": "Python is an interpreted, high-level, general-purpose programming language known for its readability and simplicity. It is widely used in automation, web development, data science, and AI.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "What is Python primarily known for?",
+            "options": ["Its readability and simplicity", "Its complex syntax and long lines of code", "Being only used for web development"],
+            "answer": "Its readability and simplicity",
+            "hint": "Think about why Python is often recommended for beginners.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which of the following is a valid comment in Python?",
+            "options": ["// This is a comment", "# This is a comment", "/* This is a comment */"],
+            "answer": "# This is a comment",
+            "hint": "Look for the symbol Python uses to start single-line comments.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Which function is used to get user input in Python?",
+            "answer": "input()",
+            "hint": "This function waits for the user to type something into the console.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which of these fields benefit most from Python?",
+            "options": ["Data Science", "Mechanical Engineering", "Graphic Design"],
+            "answer": "Data Science",
+            "hint": "Python’s pandas and NumPy are dominant in this domain.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 2: Variables and Data Types",
+        "content": "Python supports several data types such as int, float, str, list, tuple, dict, and bool. Variables do not require explicit type declarations.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "short-answer",
+            "text": "Write the correct syntax to assign the value 5 to a variable named x.",
+            "answer": "x = 5",
+            "hint": "Use the assignment operator =.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What is the output of: print(type([1,2,3]))",
+            "options": ["<class 'list'>", "<class 'tuple'>", "<class 'set'>"],
+            "answer": "<class 'list'>",
+            "hint": "The square brackets [] define this type.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which of the following is immutable?",
+            "options": ["List", "Tuple", "Dictionary"],
+            "answer": "Tuple",
+            "hint": "One of these cannot be changed after creation.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What will be the type of variable x after: x = '10'?",
+            "options": ["int", "str", "float"],
+            "answer": "str",
+            "hint": "Anything enclosed in quotes is considered this type.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Convert a string '25' into an integer in Python.",
+            "answer": "int('25')",
+            "hint": "Use the casting function for integers.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 3: Control Flow and Loops",
+        "content": "Control flow statements like if, for, and while determine how the program executes under different conditions.",
+        "lessonXP": 40,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which keyword is used for an alternative condition if the first one fails?",
+            "options": ["else", "elif", "elseif"],
+            "answer": "elif",
+            "hint": "It combines 'else' and 'if' in a single word.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What will be the output of the following code?\n\nx = 0\nwhile x < 3:\n    x += 1\nprint(x)",
+            "options": ["2", "3", "4"],
+            "answer": "3",
+            "hint": "How many times will the loop increase x before failing the condition?",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "short-answer",
+            "text": "Write a Python loop that prints numbers from 1 to 5.",
+            "answer": "for i in range(1,6): print(i)",
+            "hint": "Use range() and a for loop.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which loop is guaranteed to execute at least once?",
+            "options": ["for loop", "while loop", "do-while loop"],
+            "answer": "None",
+            "hint": "Python does not have one of these loop types directly.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      }
+    ]
+  },
+
+  "htmlcss": {
+    "title": "HTML & CSS Fundamentals",
+    "description": "Learn to build and style responsive web pages — essential for TOPCIT web technology and software implementation topics.",
+    "icon": "https://img.icons8.com/color/96/html-5--v1.png",
+    "progress": 70,
+    "lessons": [
+      {
+        "title": "Lesson 1: HTML Basics",
+        "content": "HTML defines the structure of web pages using elements and tags. It uses attributes to describe properties of elements.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "What does HTML stand for?",
+            "options": ["HyperText Markup Language", "Hyper Tool Multi Language", "Hyper Transfer Makeup Language"],
+            "answer": "HyperText Markup Language",
+            "hint": "It’s the standard language for creating web pages.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which tag is used to create a hyperlink?",
+            "options": ["<a>", "<link>", "<href>"],
+            "answer": "<a>",
+            "hint": "It stands for 'anchor'.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "short-answer",
+            "text": "Write the correct HTML tag to display an image named 'logo.png'.",
+            "answer": "<img src='logo.png' alt='logo'>",
+            "hint": "Remember to include both src and alt attributes.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which tag defines the largest heading in HTML?",
+            "options": ["<heading>", "<h1>", "<title>"],
+            "answer": "<h1>",
+            "hint": "Headings range from <h1> to <h6>.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which attribute is used to open a link in a new tab?",
+            "options": ["target='_blank'", "new='true'", "window='new'"],
+            "answer": "target='_blank'",
+            "hint": "It targets a new browser tab.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 2: CSS Fundamentals",
+        "content": "CSS adds design and layout control to HTML. It supports selectors, classes, IDs, and properties.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which property changes the text color in CSS?",
+            "options": ["font-style", "color", "background-color"],
+            "answer": "color",
+            "hint": "It directly controls text color.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write the CSS rule to center-align all text in a div element.",
+            "answer": "div { text-align: center; }",
+            "hint": "Use text-align property.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which CSS selector targets all paragraph elements?",
+            "options": ["#p", ".p", "p"],
+            "answer": "p",
+            "hint": "Tag selectors target elements by their name.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which unit in CSS is relative to the parent element's font size?",
+            "options": ["em", "px", "vw"],
+            "answer": "em",
+            "hint": "It scales based on the parent’s font size.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which CSS property adds space inside an element’s border?",
+            "options": ["margin", "padding", "border"],
+            "answer": "padding",
+            "hint": "It’s the inner spacing.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      }
+    ]
+  },
+
+ "sql": {
+    "title": "SQL for Beginners",
+    "description": "Understand relational databases and master querying using SQL. Includes data retrieval, joins, and optimization — aligned with TOPCIT database concepts.",
+    "icon": "https://img.icons8.com/color/96/sql.png",
+    "progress": 55,
+    "lessons": [
+      {
+        "title": "Lesson 1: Introduction to SQL",
+        "content": "SQL stands for Structured Query Language. It is used to store, retrieve, and manage data in relational databases.",
+        "lessonXP": 30,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which SQL statement retrieves data from a database?",
+            "options": ["GET", "EXTRACT", "SELECT"],
+            "answer": "SELECT",
+            "hint": "This command specifies which columns to view from a table.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write an SQL query to display all columns from a table named employees.",
+            "answer": "SELECT * FROM employees;",
+            "hint": "Use * to select every column.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which clause specifies the source table in an SQL query?",
+            "options": ["FROM", "WHERE", "TABLE"],
+            "answer": "FROM",
+            "hint": "It tells SQL which table to read data from.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which database object stores data in rows and columns?",
+            "options": ["View", "Table", "Index"],
+            "answer": "Table",
+            "hint": "It’s the core structure where records are kept.",
+            "difficulty": "Easy",
+            "xp": 5
+          }
+        ]
+      },
+      {
+        "title": "Lesson 2: Data Filtering and Sorting",
+        "content": "The WHERE clause filters results, and ORDER BY sorts them ascending or descending.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which SQL clause filters results based on conditions?",
+            "options": ["SORT BY", "FILTER", "WHERE"],
+            "answer": "WHERE",
+            "hint": "Used to apply logical conditions like =, >, <.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write a query to select names from 'students' table sorted by age descending.",
+            "answer": "SELECT name FROM students ORDER BY age DESC;",
+            "hint": "Add ORDER BY followed by DESC for descending order.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which SQL keyword is used to eliminate duplicate rows?",
+            "options": ["REMOVE", "DISTINCT", "UNIQUE"],
+            "answer": "DISTINCT",
+            "hint": "It ensures each value appears only once in the result set.",
+            "difficulty": "Hard",
+            "xp": 15
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which operator checks if a value matches a pattern?",
+            "options": ["LIKE", "MATCHES", "COMPARE"],
+            "answer": "LIKE",
+            "hint": "Often used with wildcards like % and _.",
+            "difficulty": "Medium",
+            "xp": 10
+          }
+        ]
+      },
+      {
+        "title": "Lesson 3: Joins and Relationships",
+        "content": "Joins combine records from multiple tables. Common joins include INNER JOIN, LEFT JOIN, and RIGHT JOIN.",
+        "lessonXP": 40,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which SQL join returns only the matching rows?",
+            "options": ["INNER JOIN", "LEFT JOIN", "FULL JOIN"],
+            "answer": "INNER JOIN",
+            "hint": "This join excludes unmatched rows from both tables.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "short-answer",
+            "text": "Write an SQL query joining 'students' and 'grades' on student_id.",
+            "answer": "SELECT * FROM students INNER JOIN grades ON students.id = grades.student_id;",
+            "hint": "Use INNER JOIN with an ON condition linking the keys.",
+            "difficulty": "Hard",
+            "xp": 15
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which join returns all rows from the left table and matching ones from the right?",
+            "options": ["LEFT JOIN", "RIGHT JOIN", "FULL JOIN"],
+            "answer": "LEFT JOIN",
+            "hint": "It keeps all records from the left table.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which clause is used to group rows with the same values?",
+            "options": ["GROUP BY", "ORDER BY", "AGGREGATE"],
+            "answer": "GROUP BY",
+            "hint": "Often paired with aggregate functions like COUNT or SUM.",
+            "difficulty": "Easy",
+            "xp": 5
+          }
+        ]
+      }
+    ]
+  },
+
+  "java": {
+    "title": "Java Essentials",
+    "description": "Master Java programming concepts — variables, methods, OOP, and exceptions. Essential for TOPCIT’s software implementation and debugging sections.",
+    "icon": "https://img.icons8.com/color/96/java-coffee-cup-logo--v1.png",
+    "progress": 40,
+    "lessons": [
+      {
+        "title": "Lesson 1: Java Basics",
+        "content": "Java is an object-oriented programming language. It is platform-independent because of the Java Virtual Machine (JVM).",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "What makes Java platform-independent?",
+            "options": ["Its open-source nature", "The JVM", "The compiler"],
+            "answer": "The JVM",
+            "hint": "The Java Virtual Machine allows bytecode to run anywhere.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which method serves as the entry point of a Java program?",
+            "options": ["start()", "execute()", "main()"],
+            "answer": "main()",
+            "hint": "Every Java application begins with this method.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write a line to print 'Hello, Java!' in Java.",
+            "answer": "System.out.println(\"Hello, Java!\");",
+            "hint": "Use System.out.println() for console output.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which file extension is used for Java source code?",
+            "options": [".java", ".class", ".jar"],
+            "answer": ".java",
+            "hint": "It’s the human-readable code before compilation.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which keyword defines a constant variable?",
+            "options": ["const", "final", "static"],
+            "answer": "final",
+            "hint": "Used to prevent variable reassignment.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 2: Classes and Methods",
+        "content": "Classes group fields and methods. Methods define behaviors that objects can perform.",
+        "lessonXP": 40,
+        "questions": [
+          {
+            "type": "short-answer",
+            "text": "Write the syntax to declare a class named Student.",
+            "answer": "class Student { }",
+            "hint": "Use the 'class' keyword followed by the name.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which keyword is used to create an object in Java?",
+            "options": ["make", "new", "create"],
+            "answer": "new",
+            "hint": "It allocates memory for the object.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which access modifier allows a method to be visible to all classes?",
+            "options": ["private", "protected", "public"],
+            "answer": "public",
+            "hint": "It provides the widest visibility scope.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What is it called when a subclass defines a method already in its superclass?",
+            "options": ["Overloading", "Overriding", "Shadowing"],
+            "answer": "Overriding",
+            "hint": "Used to modify inherited behavior.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 3: Exception Handling and Debugging",
+        "content": "Exception handling in Java prevents program crashes using try, catch, and finally blocks.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which keyword handles exceptions in Java?",
+            "options": ["throw", "catch", "error"],
+            "answer": "catch",
+            "hint": "It captures exceptions raised inside try blocks.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write the Java syntax for a try-catch block that handles generic exceptions.",
+            "answer": "try { /* code */ } catch (Exception e) { e.printStackTrace(); }",
+            "hint": "Wrap risky code inside try, and handle errors in catch.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which of the following is a checked exception?",
+            "options": ["NullPointerException", "IOException", "ArithmeticException"],
+            "answer": "IOException",
+            "hint": "Checked exceptions must be declared in method signatures.",
+            "difficulty": "Hard",
+            "xp": 15
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which block executes regardless of whether an exception occurs?",
+            "options": ["catch", "finally", "throw"],
+            "answer": "finally",
+            "hint": "It runs cleanup code like closing files.",
+            "difficulty": "Medium",
+            "xp": 10
+          }
+        ]
+      }
+    ]
+  },
+
+  "javascript": {
+    "title": "JavaScript Advanced",
+    "description": "Deepen your understanding of modern JavaScript concepts — including ES6+, asynchronous programming, and DOM manipulation for dynamic web apps.",
+    "icon": "https://img.icons8.com/color/96/javascript--v1.png",
+    "progress": 60,
+    "lessons": [
+      {
+        "title": "Lesson 1: ES6 and Modern Syntax",
+        "content": "ES6 introduced features like let/const, arrow functions, template literals, and destructuring for cleaner code.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which keyword creates a block-scoped variable in ES6?",
+            "options": ["var", "let", "const"],
+            "answer": "let",
+            "hint": "It behaves like var but respects block scope.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write an arrow function that returns the square of a number x.",
+            "answer": "const square = x => x * x;",
+            "hint": "Use the arrow function syntax without 'function'.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which ES6 feature allows unpacking values from arrays or objects?",
+            "options": ["Spread", "Destructuring", "Map"],
+            "answer": "Destructuring",
+            "hint": "It uses curly or square brackets to extract values.",
+            "difficulty": "Hard",
+            "xp": 15
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What does the 'const' keyword do?",
+            "options": ["Declares a constant reference", "Creates an immutable object", "Declares a global variable"],
+            "answer": "Declares a constant reference",
+            "hint": "You can’t reassign the variable, but its content can change if it’s an object.",
+            "difficulty": "Medium",
+            "xp": 10
+          }
+        ]
+      },
+      {
+        "title": "Lesson 2: Asynchronous JavaScript",
+        "content": "Asynchronous operations in JavaScript are handled with callbacks, promises, and async/await syntax.",
+        "lessonXP": 40,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which method is used to handle resolved or rejected promises?",
+            "options": [".resolve()", ".then()", ".async()"],
+            "answer": ".then()",
+            "hint": "Used to define actions after a promise resolves.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write a basic async function that logs 'Done'.",
+            "answer": "async function run() { console.log('Done'); }",
+            "hint": "Use 'async' before the function keyword.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which keyword pauses execution until a promise resolves?",
+            "options": ["await", "defer", "resolve"],
+            "answer": "await",
+            "hint": "It can only be used inside async functions.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which pattern prevents 'callback hell'?",
+            "options": ["Promises", "Nested callbacks", "Loops"],
+            "answer": "Promises",
+            "hint": "This feature replaced old callback chains.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      }
+    ]
+  },
+
+  "react": {
+    "title": "React Framework",
+    "description": "Build dynamic and reusable UI components with React. Learn state management, hooks, and virtual DOM concepts.",
+    "icon": "https://img.icons8.com/color/96/react-native.png",
+    "progress": 45,
+    "lessons": [
+      {
+        "title": "Lesson 1: Components and JSX",
+        "content": "React components can be function-based or class-based. JSX allows writing HTML inside JavaScript.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "What does JSX stand for?",
+            "options": ["JavaScript XML", "Java Syntax Extension", "JSON XML"],
+            "answer": "JavaScript XML",
+            "hint": "It lets you write HTML-like syntax inside JS.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write a simple React function component named 'Hello'.",
+            "answer": "function Hello() { return <h1>Hello</h1>; }",
+            "hint": "A function returning JSX defines a component.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What must be imported to use JSX?",
+            "options": ["React", "JSX", "DOM"],
+            "answer": "React",
+            "hint": "JSX is compiled via the React library.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Each React component must return:",
+            "options": ["A string", "JSX element", "A DOM object"],
+            "answer": "JSX element",
+            "hint": "Components describe UI via JSX.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What is the purpose of the virtual DOM?",
+            "options": ["To store app data", "To improve UI performance", "To handle routing"],
+            "answer": "To improve UI performance",
+            "hint": "React uses it to efficiently update only changed parts.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 2: State and Props",
+        "content": "Props pass data from parent to child components, while state manages internal component data.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Props in React are:",
+            "options": ["Mutable", "Immutable", "Functions"],
+            "answer": "Immutable",
+            "hint": "They can’t be modified by child components.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "How do you initialize state in a functional component?",
+            "answer": "const [count, setCount] = useState(0);",
+            "hint": "React Hook that defines reactive variables.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which hook is used for side effects like API calls?",
+            "options": ["useEffect", "useState", "useContext"],
+            "answer": "useEffect",
+            "hint": "This hook runs code after rendering.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which method updates component data in class-based components?",
+            "options": ["updateState()", "setState()", "changeState()"],
+            "answer": "setState()",
+            "hint": "The most common way to modify component data in classes.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      }
+    ]
+  },
+
+    "cpp": {
+    "title": "C++ Fundamentals",
+    "description": "Learn the basics of C++ programming — variables, control structures, OOP, and memory management for efficient applications.",
+    "icon": "https://img.icons8.com/color/96/c-plus-plus-logo.png",
+    "progress": 50,
+    "lessons": [
+      {
+        "title": "Lesson 1: Basics and Syntax",
+        "content": "C++ uses a strong static type system and requires explicit variable declarations.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which symbol marks the end of a statement in C++?",
+            "options": [".", ";", ":"],
+            "answer": ";",
+            "hint": "It's the same symbol used in Java and C.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write the syntax for a basic C++ main function.",
+            "answer": "int main() { return 0; }",
+            "hint": "Start with int main() followed by braces.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which header file is needed for input and output?",
+            "options": ["<stdio.h>", "<iostream>", "<conio.h>"],
+            "answer": "<iostream>",
+            "hint": "It contains cout and cin.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which operator is used for insertion in output streams?",
+            "options": ["<<", ">>", "->"],
+            "answer": "<<",
+            "hint": "Used with cout for displaying output.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      }
+    ]
+  },
+
+"aiml": {
+    "title": "Intro to AI & Machine Learning",
+    "description": "Understand the foundations of Artificial Intelligence and Machine Learning — key algorithms, data preprocessing, and model evaluation concepts relevant to the TOPCIT software domain.",
+    "icon": "https://img.icons8.com/color/96/artificial-intelligence.png",
+    "progress": 50,
+    "lessons": [
+      {
+        "title": "Lesson 1: Fundamentals of AI",
+        "content": "Artificial Intelligence aims to create systems that can perform tasks that typically require human intelligence — such as reasoning, perception, and learning.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which of the following best defines Artificial Intelligence?",
+            "options": [
+              "Systems that mimic human intelligence",
+              "Software that automates simple tasks only",
+              "Programs that work without data"
+            ],
+            "answer": "Systems that mimic human intelligence",
+            "hint": "AI refers to systems designed to think and learn like humans.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which branch of AI focuses on enabling machines to learn from data?",
+            "options": ["Machine Learning", "Deep Web", "Cloud Computing"],
+            "answer": "Machine Learning",
+            "hint": "It’s the core of modern AI systems.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "short-answer",
+            "text": "Name one real-world application of AI.",
+            "answer": "Examples include voice assistants, self-driving cars, or recommendation systems.",
+            "hint": "Think about where you see smart automation every day.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which of these is NOT a goal of AI?",
+            "options": ["Perception", "Learning", "Manual computation"],
+            "answer": "Manual computation",
+            "hint": "AI focuses on automating and enhancing cognitive tasks.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 2: Machine Learning Basics",
+        "content": "Machine Learning enables systems to automatically improve from experience without explicit programming. It is categorized into supervised, unsupervised, and reinforcement learning.",
+        "lessonXP": 40,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which type of learning uses labeled data?",
+            "options": ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning"],
+            "answer": "Supervised Learning",
+            "hint": "Training involves input-output pairs.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which algorithm is commonly used for classification problems?",
+            "options": ["K-Means", "Decision Trees", "K-Nearest Neighbors"],
+            "answer": "Decision Trees",
+            "hint": "This algorithm splits data based on attribute values.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "short-answer",
+            "text": "What is the main goal of unsupervised learning?",
+            "answer": "To find patterns or structure in unlabeled data.",
+            "hint": "It’s used for clustering and association.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which of these is a reinforcement learning example?",
+            "options": ["Spam filtering", "Game AI", "Image segmentation"],
+            "answer": "Game AI",
+            "hint": "This type of learning relies on rewards and penalties.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      },
+      {
+        "title": "Lesson 3: Model Evaluation and Metrics",
+        "content": "Evaluating ML models is crucial to ensure accuracy, fairness, and generalization. Common metrics include accuracy, precision, recall, and F1-score.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which metric measures the proportion of correctly classified instances?",
+            "options": ["Accuracy", "Precision", "Recall"],
+            "answer": "Accuracy",
+            "hint": "It’s the simplest measure of overall correctness.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Define precision in the context of ML evaluation.",
+            "answer": "Precision = True Positives / (True Positives + False Positives)",
+            "hint": "It focuses on how many predicted positives were correct.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which metric is most useful for imbalanced datasets?",
+            "options": ["Accuracy", "F1-score", "Loss"],
+            "answer": "F1-score",
+            "hint": "It balances precision and recall.",
+            "difficulty": "Hard",
+            "xp": 15
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which technique helps prevent overfitting?",
+            "options": ["Cross-validation", "Random guessing", "Under-sampling only"],
+            "answer": "Cross-validation",
+            "hint": "It splits data into multiple training and testing sets.",
+            "difficulty": "Medium",
+            "xp": 10
+          }
+        ]
+      }
+    ]
+  },
+
+  "git": {
+    "title": "Version Control with Git",
+    "description": "Master Git commands, branching strategies, and version tracking for collaborative development.",
+    "icon": "https://img.icons8.com/color/96/git.png",
+    "progress": 65,
+    "lessons": [
+      {
+        "title": "Lesson 1: Git Basics",
+        "content": "Git tracks file changes and enables version control in software development.",
+        "lessonXP": 35,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which command initializes a new Git repository?",
+            "options": ["git start", "git init", "git new"],
+            "answer": "git init",
+            "hint": "Use this before your first commit.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "short-answer",
+            "text": "Write the command to stage all modified files.",
+            "answer": "git add .",
+            "hint": "Use the dot to include all files.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which command shows commit history?",
+            "options": ["git log", "git history", "git commits"],
+            "answer": "git log",
+            "hint": "Displays a chronological list of commits.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which command creates a new branch?",
+            "options": ["git branch", "git checkout", "git switch"],
+            "answer": "git branch",
+            "hint": "Used to manage feature or bug-fix branches.",
+            "difficulty": "Hard",
+            "xp": 15
+          }
+        ]
+      }
+    ]
+  },
+
+   "api": {
+    "title": "RESTful API Design",
+    "description": "Learn the principles of REST architecture and how to design scalable, secure APIs using HTTP methods and JSON data.",
+     "icon": "https://img.icons8.com/color/96/api-settings.png",
+    "progress": 55,
+    "lessons": [
+      {
+        "title": "Lesson 1: REST Basics",
+        "content": "REST stands for Representational State Transfer. It uses HTTP methods like GET, POST, PUT, and DELETE for CRUD operations.",
+        "lessonXP": 40,
+        "questions": [
+          {
+            "type": "multiple-choice",
+            "text": "Which HTTP method retrieves data from a server?",
+            "options": ["POST", "GET", "DELETE"],
+            "answer": "GET",
+            "hint": "It's the read operation in CRUD.",
+            "difficulty": "Easy",
+            "xp": 5
+          },
+          {
+            "type": "multiple-choice",
+            "text": "Which format is most commonly used for REST responses?",
+            "options": ["XML", "JSON", "CSV"],
+            "answer": "JSON",
+            "hint": "Lightweight and easy to parse in JavaScript.",
+            "difficulty": "Medium",
+            "xp": 10
+          },
+          {
+            "type": "multiple-choice",
+            "text": "What does 'idempotent' mean in REST?",
+            "options": ["Executed only once", "Safe to repeat without side effects", "Requires authentication"],
+            "answer": "Safe to repeat without side effects",
+            "hint": "Applies to methods like PUT and DELETE.",
+            "difficulty": "Hard",
+            "xp": 15
+          },
+          {
+            "type": "short-answer",
+            "text": "Write the endpoint URL to get all users in a REST API.",
+            "answer": "/api/users",
+            "hint": "Plural resource names are a best practice.",
+            "difficulty": "Medium",
+            "xp": 10
+          }
+        ]
+      }
+    ]
+  }
+}
