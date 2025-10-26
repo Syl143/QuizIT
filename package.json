@@ -2,7 +2,7 @@
   "name": "quizit",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx json-server --watch db.json --port 10000"
+    "start": "node node_modules/json-server/dist/bin/index.js --watch db.json --port 10000"
   },
   "devDependencies": {
     "live-server": "^1.2.2"
