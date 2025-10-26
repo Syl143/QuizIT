@@ -19,7 +19,7 @@ server.use(middlewares);
 
 // 👇 Add this line
 server.get("/", (req, res) => {
-  res.send("🎉 QuizIT backend is running successfully!");
+  res.send("✅ QuizIT backend is running successfully! Available routes: /users, /milestones, /discussions, /topics, /lessons");
 });
 
 server.use(router);
