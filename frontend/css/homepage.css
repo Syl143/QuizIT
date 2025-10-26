@@ -949,7 +949,16 @@ footer {
 }
 
 /* SUBMIT BUTTON */
-.submit-btn {
+/* Container for question + options */
+.slide > div, 
+.slide input.short-answer-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Submit button aligned to right */
+.slide .submit-btn {
   background: #0077ff;
   color: #fff;
   border: none;
@@ -958,10 +967,62 @@ footer {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.25s ease;
+  align-self: flex-end; /* move button to the right */
 }
-.submit-btn:hover {
+
+.slide .submit-btn:hover {
   background: #005ac1;
 }
+/* Slide score container (full width below submit) */
+.slide-score-container {
+  margin-top: 15px;
+  width: 100%;
+}
+
+/* Live score text */
+.slide-score-container #live-lesson-score {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: #264653; /* dark blue */
+  width: 100%;
+}
+
+/* Progress bar container */
+.slide-score-container .progress-bar-container {
+  width: 100%;
+  background-color: #ddd;
+  border-radius: 8px;
+  height: 16px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress bar fill */
+.slide-score-container .progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #2a9d8f; /* green */
+  transition: width 0.5s ease-in-out; /* smooth animation */
+  border-radius: 8px 0 0 8px; /* rounded left side */
+}
+
+/* Optional: hover effect */
+.slide-score-container .progress-bar-container:hover .progress-bar-fill {
+  background-color: #21867a;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .slide-score-container #live-lesson-score {
+    font-size: 1rem;
+  }
+  .slide-score-container .progress-bar-container {
+    height: 12px;
+  }
+}
+
 
 /* NAVIGATION BUTTONS */
 .slider-controls {

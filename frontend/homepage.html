@@ -567,28 +567,36 @@ function showLesson(courseKey, lessonTitle) {
 
   // Function to update score & progress bar
   function updateScore() {
+    const slide = slider.querySelectorAll(".slide")[current];
+    const scoreEl = slide.querySelector("#live-lesson-score");
+    const progressBar = slide.querySelector(".progress-bar-fill");
+
     scoreEl.textContent = `Your score: ${lessonScore} / ${totalXP} XP`;
     const percent = totalXP === 0 ? 0 : (lessonScore / totalXP) * 100;
     progressBar.style.width = percent + "%";
   }
 
   // Render questions
-  lesson.questions.forEach((q, i) => {
+    lesson.questions.forEach((q, i) => {
     const slide = document.createElement("div");
     slide.className = "slide";
     slide.style.display = i === 0 ? "block" : "none";
 
     if (q.type === "multiple-choice") {
       const opts = q.options
-        .map(
-          (o) => `<label><input type="radio" name="q${i}" value="${escapeHtml(o)}"> ${escapeHtml(o)}</label>`
-        )
+        .map(o => `<label><input type="radio" name="q${i}" value="${escapeHtml(o)}"> ${escapeHtml(o)}</label>`)
         .join("");
       slide.innerHTML = `
         <p>${i + 1}. ${q.text}</p>
         <div>${opts}</div>
         <button class="submit-btn">Submit</button>
         <div class="feedback"></div>
+        <div class="slide-score-container">
+          <div id="live-lesson-score">Your score: ${lessonScore} / ${totalXP} XP</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill"></div>
+          </div>
+        </div>
       `;
     } else {
       slide.innerHTML = `
@@ -596,6 +604,12 @@ function showLesson(courseKey, lessonTitle) {
         <input class="short-answer-input" placeholder="Your answer...">
         <button class="submit-btn">Submit</button>
         <div class="feedback"></div>
+        <div class="slide-score-container">
+          <div id="live-lesson-score">Your score: ${lessonScore} / ${totalXP} XP</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill"></div>
+          </div>
+        </div>
       `;
     }
     slider.appendChild(slide);
