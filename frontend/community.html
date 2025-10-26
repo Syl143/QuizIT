@@ -130,318 +130,179 @@
   </div>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  // ----- CONFIG -----
-const API_BASE =
-  window.location.hostname.includes("render.com")
-    ? "https://quizit-backend.onrender.com"
-    : "http://localhost:3000";
+<script> 
+document.addEventListener("DOMContentLoaded", async () => { 
+  // ----- CONFIG ----- 
+  const API_BASE = window.location.hostname.includes("render.com") 
+  ? "https://quizit-backend.onrender.com" : "http://localhost:3000"; 
+  const USERS_ENDPOINT = `${API_BASE}/users`; 
+  const DISCUSSIONS_ENDPOINT = `${API_BASE}/discussions`; 
+  const TOPICS_ENDPOINT = `${API_BASE}/topics`; 
+  const LOCAL_USERS_KEY = "quizit_local_users"; 
+  // Helper selectors 
+  const qs = (sel) => document.querySelector(sel); 
+  const qsa = (sel) => Array.from(document.querySelectorAll(sel)); 
+  // ----- TAB SWITCHING ----- 
+  const tabs = document.querySelectorAll(".tab"); 
+  const sections = { discussions: document.getElementById("discussions-section"), 
+    "my-feed": document.getElementById("feed-section"), 
+  }; 
+  tabs.forEach((tab) => { 
+    tab.addEventListener("click", () => 
+    { tabs.forEach((t) => t.classList.remove("active")); 
+    tab.classList.add("active"); 
+    Object.values(sections).forEach((sec) => sec.classList.remove("active")); 
+    sections[tab.dataset.tab].classList.add("active"); }); 
+  }); sections["discussions"].classList.add("active"); 
+  // ----- SESSION CHECK ----- 
+  const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser")); 
+  if (!sessionUser) { 
+    alert("Please log in first."); window.location.href = "index.html"; return; 
+  } 
+  // ----- LOAD USERS ----- 
+  let users = []; try { 
+    const res = await fetch(USERS_ENDPOINT); 
+    if (!res.ok) throw new Error("json-server not available"); 
+    users = await res.json(); 
+  } catch { 
+    const stored = localStorage.getItem(LOCAL_USERS_KEY); users = stored ? JSON.parse(stored) : []; 
+  } 
+  const user = users.find((u) => u.email === sessionUser.email); 
+  if (!user) { 
+    alert("User not found."); sessionStorage.clear(); window.location.href = "index.html"; return; 
+  } 
+  // ----- LOAD DISCUSSIONS & TOPICS ----- 
+  async function loadCommunity() { 
+    try { 
+      const [discRes, topicRes] = await Promise.all([ fetch(DISCUSSIONS_ENDPOINT), fetch(TOPICS_ENDPOINT), 
 
-const COMMUNITY_ENDPOINT = `${API_BASE}/community`;
-
-// Helper selectors
-const qs = (sel) => document.querySelector(sel);
-const qsa = (sel) => Array.from(document.querySelectorAll(sel));
-
-  // ----- TAB SWITCHING -----
-const tabs = document.querySelectorAll('.tab');
-const sections = {
-  discussions: document.getElementById('discussions-section'),
-  'my-feed': document.getElementById('feed-section')
-};
-
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    // Toggle active class on tabs
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-
-    // Show only the corresponding section
-    Object.values(sections).forEach(sec => sec.classList.remove('active'));
-    sections[tab.dataset.tab].classList.add('active');
-  });
-});
-
-// Initialize default section
-sections['discussions'].classList.add('active');
-
-
-  // ----- SESSION CHECK -----
-  const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-  if (!sessionUser) {
-    alert("Please log in first.");
-    window.location.href = "index.html";
-    return;
-  }
-
-  // ----- LOAD USERS -----
-let users = [];
-try {
-  const res = await fetch(USERS_ENDPOINT); // GET all users
-  if (!res.ok) throw new Error("json-server not available");
-  users = await res.json();
-} catch (err) {
-  console.warn("json-server unavailable, falling back to localStorage...");
-  const stored = localStorage.getItem(LOCAL_USERS_KEY);
-  users = stored ? JSON.parse(stored) : [];
-}
-
-// Find logged-in user
-let user = users.find(u => u.email === sessionUser.email);
-if (!user) {
-  alert("User not found.");
-  sessionStorage.clear();
-  window.location.href = "index.html";
-  return;
-}
-  // Load discussions and topics
-  async function loadCommunity() {
-    try {
-      const res = await fetch(COMMUNITY_ENDPOINT);
-      const data = await res.json();
-      renderDiscussions(data.discussions);
-      renderTopics(data.topics);
-    } catch (err) {
-      console.error("Error loading community:", err);
-    }
-  }
-  // Render discussions dynamically
-function renderDiscussions(discussions) {
-  const main = qs(".discussion-main");
-  main.innerHTML = `
-    <div class="new-post">
-      <div class="new-post-header">
-        <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" class="user-icon" />
-        <input type="text" id="new-post-title" placeholder="Post title..." />
-      </div>
-      <input type="text" id="new-post-text" placeholder="Share your thoughts..." />
-      <button id="post-btn"><i class="fa-solid fa-paper-plane"></i> Post</button>
-    </div>
-  `;
-
-  discussions.forEach((d) => {
-    const card = document.createElement("div");
-    card.classList.add("discussion-card");
-    card.setAttribute("data-id", d.id);
-
-    card.innerHTML = `
-      <div class="vote-panel">
-        <button class="vote-btn upvote">⬆</button>
-        <span class="vote-count">${d.votes}</span>
-        <button class="vote-btn downvote">⬇</button>
-      </div>
-      <div class="post-content">
-        <h3>${d.title}</h3>
-        <p>
-          <img src="https://img.icons8.com/color/24/000000/user-female-circle.png" class="user-icon-small" />
-          <strong>${getUserName(d.author)}:</strong> ${d.content}
-        </p>
-        <div class="post-actions">
-          <span class="comments-toggle">💬 ${d.comments.length} Comment</span>
-          <span>🕒 ${d.timestamp}</span>
-        </div>
-        <div class="comments-section hidden">
-          ${d.comments
-            .map(
-              (c) => `
-              <div class="comment">
-                <img src="${getUserAvatar(c.author)}" class="user-icon-small" />
-                <strong>${getUserName(c.author)}:</strong> ${c.content}
-              </div>`
-            )
-            .join("")}
-          <div class="reply-input-container">
-            <input type="text" class="reply-input" placeholder="Write a reply..." />
-            <button class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    main.appendChild(card);
-  });
-
-  // Toggle comments
-  qsa(".comments-toggle").forEach((btn) =>
-    btn.addEventListener("click", (e) => {
-      const section = e.target
-        .closest(".post-content")
-        .querySelector(".comments-section");
-      section.classList.toggle("hidden");
-    })
-  );
-
-  // Handle upvote/downvote
-  qsa(".upvote").forEach((btn) =>
-    btn.addEventListener("click", () => updateVote(btn, 1))
-  );
-  qsa(".downvote").forEach((btn) =>
-    btn.addEventListener("click", () => updateVote(btn, -1))
-  );
-}
-
-// Handle voting updates
-function updateVote(btn, change) {
-  const card = btn.closest(".discussion-card");
-  const countEl = card.querySelector(".vote-count");
-  let votes = parseInt(countEl.textContent) + change;
-  if (votes < 0) votes = 0;
-  countEl.textContent = votes;
-}
-
-// Render trending topics
-function renderTopics(topics) {
-  const list = qs(".trending-list");
-  list.innerHTML = topics
-    .map(
-      (t) => `
-      <li>
-        <span class="topic-tag">${t.tag}</span>
-        <span class="topic-title">${t.title}</span>
-        <span class="topic-count">${t.count}</span>
-      </li>`
-    )
-    .join("");
-}
-
-// Helpers to match user info
-function getUserName(id) {
-  if (id === 1) return "Alice";
-  if (id === 2) return "You";
-  return "Guest";
-}
-
-function getUserAvatar(id) {
-  if (id === 1)
-    return "https://img.icons8.com/color/48/000000/user-female-circle.png";
-  if (id === 2)
-    return "https://img.icons8.com/color/48/000000/user-male-circle--v1.png";
-  return "https://img.icons8.com/color/48/000000/user.png";
-}
-
-// Initialize
-document.addEventListener("DOMContentLoaded", loadCommunity);
-
-// Load user's feed (their discussions only)
-async function loadUserFeed() {
-  try {
-    const res = await fetch(COMMUNITY_ENDPOINT);
-    const data = await res.json();
-
-    // Filter to user's own discussions
-    const myPosts = data.discussions.filter(
-      (post) => post.author === CURRENT_USER_ID
-    );
-
-    renderUserFeed(myPosts);
-  } catch (err) {
-    console.error("Error loading feed:", err);
-  }
-}
-
-// Render feed posts
-function renderUserFeed(posts) {
-  const container = qs("#feed-posts-container");
-  container.innerHTML = "";
-
-  if (posts.length === 0) {
-    container.innerHTML = `<p class="no-posts">You haven’t posted anything yet.</p>`;
-    return;
-  }
-
-  posts.forEach((p) => {
-    const postCard = document.createElement("div");
-    postCard.classList.add("feed-post-card");
-
-    postCard.innerHTML = `
-      <div class="feed-post-header">
-        <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" alt="User" class="feed-user-icon">
-        <div>
-          <h4 class="feed-user-name">${getUserName(p.author)}</h4>
-          <p class="feed-timestamp">${p.timestamp}</p>
-        </div>
-      </div>
-
-      <p class="feed-post-content">${p.title}: ${p.content}</p>
-
-      <div class="feed-post-actions">
-        <div class="feed-left-actions">
-          <button class="feed-like-btn"><i class="fa-solid fa-thumbs-up"></i> Like <span class="feed-like-count">${p.votes}</span></button>
-          <button class="feed-comment-btn"><i class="fa-solid fa-comment"></i> Comment (${p.comments.length})</button>
-        </div>
-        <button class="feed-share-btn"><i class="fa-solid fa-share"></i> Share</button>
-      </div>
-
-      <div class="feed-comment-section hidden">
-        <div class="feed-comment-input">
-          <input type="text" class="feed-comment-text" placeholder="Write a comment..." />
-          <button class="feed-comment-send"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
-        <div class="feed-comment-list">
-          ${p.comments
-            .map(
-              (c) => `
-            <div class="feed-comment">
-              <strong>${getUserName(c.author)}:</strong> ${c.content}
-            </div>`
-            )
-            .join("")}
-        </div>
-      </div>
-    `;
-
-    container.appendChild(postCard);
-  });
-
-  // Toggle comment sections
-  qsa(".feed-comment-btn").forEach((btn) =>
-    btn.addEventListener("click", (e) => {
-      const section = e.target
-        .closest(".feed-post-card")
-        .querySelector(".feed-comment-section");
-      section.classList.toggle("hidden");
-    })
-  );
-}
-
-function getUserName(id) {
-  if (id === 1) return "Alice";
-  if (id === 2) return "You";
-  return "Guest";
-}
-
-// Initialize feed
-document.addEventListener("DOMContentLoaded", loadUserFeed);
-
-  // ----- ELEMENTS -----
-  const profileNameEl = qs(".profile-info h3");
-
-  // ----- RENDER FUNCTIONS -----
-  function renderProfile() {
-    profileNameEl.textContent = user.fullname;
-    updateXP();
-  }
-
-  // ----- INITIALIZE -----
-  renderProfile();
-
-  // ----- LOGOUT -----
-  window.logout = function() {
+      ]); 
+      const discussions = await discRes.json(); 
+      const topics = await topicRes.json(); 
+      renderDiscussions(discussions); renderTopics(topics); 
+    } catch (err) { 
+      console.error("Error loading community:", err); 
+    } 
+  } 
+  // ----- RENDER DISCUSSIONS ----- 
+  function renderDiscussions(discussions) 
+  { 
+    const main = qs(".discussion-main"); 
+    main.innerHTML = ` <div class="new-post"> <div class="new-post-header"> 
+      <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" class="user-icon" /> 
+      <input type="text" id="new-post-title" placeholder="Post title..." /> 
+      </div> <input type="text" id="new-post-text" placeholder="Share your thoughts..." /> 
+      <button id="post-btn"><i class="fa-solid fa-paper-plane"></i> Post</button> 
+      </div> `; 
+      discussions.forEach((d) => { 
+        const card = document.createElement("div"); card.classList.add("discussion-card"); 
+        card.setAttribute("data-id", d.id); 
+        card.innerHTML = ` <div class="vote-panel"> 
+          <button class="vote-btn upvote">⬆</button> <span class="vote-count">${d.votes}</span> 
+          <button class="vote-btn downvote">⬇</button> </div> <div class="post-content"> 
+            <h3>${d.title}</h3> <p> <img src="${getUserAvatar(d.author)}" class="user-icon-small" /> 
+              <strong>${getUserName(d.author)}:</strong> ${d.content} </p> <div class="post-actions"> 
+                <span class="comments-toggle">💬 ${d.comments.length} Comment</span> <span>🕒 ${d.timestamp}</span> 
+                </div> 
+                <div class="comments-section hidden"> ${d.comments .map( (c) => ` <div class="comment"> 
+                  <img src="${getUserAvatar(c.author)}" class="user-icon-small" /> 
+                  <strong>${getUserName(c.author)}:</strong> ${c.content} </div>` ) .join("")} 
+                  <div class="reply-input-container"> 
+                    <input type="text" class="reply-input" placeholder="Write a reply..." /> 
+                    <button class="send-btn"><i class="fa-solid fa-paper-plane"></i></button> </div> </div> </div> `; 
+                    main.appendChild(card); 
+                  }); 
+  // Toggle comments 
+  qsa(".comments-toggle").forEach((btn) => btn.addEventListener("click", (e) => { 
+    const section = e.target .closest(".post-content") .querySelector(".comments-section"); 
+    section.classList.toggle("hidden"); 
+  }) ); 
+  // Voting 
+  qsa(".upvote").forEach((btn) => 
+  btn.addEventListener("click", () => updateVote(btn, 1)) ); 
+  qsa(".downvote").forEach((btn) => btn.addEventListener("click", () => updateVote(btn, -1)) ); 
+} 
+  // ----- VOTING ----- 
+  function updateVote(btn, change) { 
+    const card = btn.closest(".discussion-card"); 
+    const countEl = card.querySelector(".vote-count"); 
+    let votes = parseInt(countEl.textContent) + change; if (votes < 0) votes = 0; 
+    countEl.textContent = votes; 
+  } 
+  // ----- RENDER TOPICS ----- 
+  function renderTopics(topics) { 
+    const list = qs(".trending-list"); list.innerHTML = topics .map( (t) => 
+    ` <li> <span class="topic-tag">${t.tag}</span> 
+      <span class="topic-title">${t.title}</span> 
+      <span class="topic-count">${t.count}</span> 
+      </li>` ) .join(""); 
+    } 
+  // ----- USER FEED (MY POSTS) ----- 
+  async function loadUserFeed() { 
+    try { 
+      const res = await fetch(DISCUSSIONS_ENDPOINT); 
+      const discussions = await res.json(); 
+      const myPosts = discussions.filter((p) => p.author === user.id); 
+      renderUserFeed(myPosts); 
+    } catch (err) { 
+      console.error("Error loading feed:", err); 
+    } 
+  } 
+  function renderUserFeed(posts) { 
+    const container = qs("#feed-posts-container"); 
+    container.innerHTML = ""; if (posts.length === 0) { c
+      ontainer.innerHTML = `<p class="no-posts">You haven’t posted anything yet.</p>`; 
+      return; 
+    } 
+    posts.forEach((p) => { 
+      const postCard = document.createElement("div"); 
+      postCard.classList.add("feed-post-card"); 
+      postCard.innerHTML = 
+      ` <div class="feed-post-header"> 
+        <img src="${getUserAvatar(p.author)}" alt="User" class="feed-user-icon"> 
+        <div> <h4 class="feed-user-name">${getUserName(p.author)}
+          </h4> <p class="feed-timestamp">${p.timestamp}</p> 
+          </div> 
+          </div> 
+          <p class="feed-post-content">${p.title}: ${p.content}</p> 
+          <div class="feed-post-actions"> 
+            <div class="feed-left-actions"> 
+              <button class="feed-like-btn">
+                <i class="fa-solid fa-thumbs-up">
+                  </i> Like <span class="feed-like-count">${p.votes}</span>
+                  </button> <button class="feed-comment-btn">
+                    <i class="fa-solid fa-comment"></i> Comment (${p.comments.length})
+                    </button> 
+                  </div> 
+                  <button class="feed-share-btn"><i class="fa-solid fa-share"></i> Share</button> </div> `; 
+          container.appendChild(postCard); 
+        }); 
+    qsa(".feed-comment-btn").forEach((btn) => btn.addEventListener("click", (e) => { 
+      const section = e.target .closest(".feed-post-card") 
+      .querySelector(".feed-comment-section"); section?.classList.toggle("hidden"); 
+    }) 
+  ); 
+} 
+// ----- HELPERS ----- 
+function getUserName(id) { 
+  if (id === user.id) return "You"; 
+  const u = users.find((x) => x.id === id); 
+  return u ? u.fullname : "Guest"; 
+} 
+function getUserAvatar(id) { 
+  if (id === user.id) 
+  return "https://img.icons8.com/color/48/000000/user-male-circle--v1.png"; 
+return "https://img.icons8.com/color/48/000000/user.png"; 
+} 
+// ----- INIT ----- 
+await loadCommunity(); 
+await loadUserFeed(); 
+  // ================== LOGOUT ==================
+  window.logout = function () {
     sessionStorage.clear();
     window.location.href = "index.html";
   };
-
-  const sidebar = document.querySelector('.sidebar');
-  const toggleBtn = document.getElementById('toggleSidebar');
-
-  toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-  });
-});
-
-
-
+}); 
 </script>
 
 
