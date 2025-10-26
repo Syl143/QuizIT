@@ -79,28 +79,33 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  // ----- CONFIG -----
-  const API_BASE = "http://localhost:3000";
-  const DB_ENDPOINT = `${API_BASE}/db`;
+  // ================== CONFIG ==================
   const LOCAL_USERS_KEY = "quizit_local_users";
+  const qs = (sel) => document.querySelector(sel);
+  const qsa = (sel) => Array.from(document.querySelectorAll(sel));
 
-  const qs = sel => document.querySelector(sel);
-  const qsa = sel => Array.from(document.querySelectorAll(sel));
+  // ✅ Auto-detect backend environment
+  const API_BASE = window.location.hostname.includes("localhost")
+    ? "http://localhost:3000"
+    : "https://quizit-backend-bql1.onrender.com";
+  const USERS_ENDPOINT = `${API_BASE}/users`;
 
-  // ----- TAB SWITCHING -----
+  console.log("🌐 Using API base:", API_BASE);
+
+  // ================== TAB SWITCHING ==================
   const tabs = qsa(".tab");
   const contents = qsa(".tab-content");
-  tabs.forEach(tab => {
+  tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
-      tabs.forEach(t => t.classList.remove("active"));
-      contents.forEach(c => c.classList.remove("active"));
+      tabs.forEach((t) => t.classList.remove("active"));
+      contents.forEach((c) => c.classList.remove("active"));
       tab.classList.add("active");
       const target = document.getElementById(tab.dataset.tab);
       if (target) target.classList.add("active");
     });
   });
 
-  // ----- SESSION CHECK -----
+  // ================== SESSION CHECK ==================
   const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   if (!sessionUser) {
     alert("Please log in first.");
@@ -108,29 +113,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // ----- LOAD DATA FROM db.json -----
+  // ================== LOAD USERS FROM SERVER ==================
   let users = [];
   try {
-    const res = await fetch(DB_ENDPOINT);
-    if (!res.ok) throw new Error("Server unavailable");
-    const db = await res.json();
-    users = db.users || [];
+    const res = await fetch(USERS_ENDPOINT, { cache: "no-cache" });
+    if (!res.ok) throw new Error("Failed to fetch users from server.");
+    users = await res.json();
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+    console.log(`✅ Loaded ${users.length} users from server`);
   } catch (err) {
-    console.warn("⚠️ json-server unavailable, using localStorage fallback...");
+    console.warn("⚠️ Server unreachable, loading users from localStorage...");
     const stored = localStorage.getItem(LOCAL_USERS_KEY);
     users = stored ? JSON.parse(stored) : [];
   }
 
-  // ----- FIND LOGGED-IN USER -----
-  let user = users.find(u => u.email === sessionUser.email);
+  // ================== FIND LOGGED-IN USER ==================
+  const user = users.find((u) => u.email === sessionUser.email);
   if (!user) {
-    alert("User not found.");
+    alert("User not found. Please log in again.");
     sessionStorage.clear();
     window.location.href = "index.html";
     return;
   }
 
-  // ----- SIDEBAR TOGGLE -----
+  // ================== SIDEBAR TOGGLE ==================
   const sidebar = qs(".sidebar");
   const toggleBtn = qs("#toggleSidebar");
   if (toggleBtn) {
@@ -139,19 +145,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // ----- RENDER PROFILE INFO -----
+  // ================== RENDER PROFILE INFO ==================
   const profileNameEl = qs(".profile-info h3");
   if (profileNameEl) profileNameEl.textContent = user.fullname;
 
-  // ----- RENDER LEADERBOARD -----
+  // ================== RENDER LEADERBOARD ==================
   const leaderboardContainer = qs("#leaderboard-container");
   if (!leaderboardContainer) return;
 
-  const sortedUsers = [...users].sort((a, b) => (b.totalXP || 0) - (a.totalXP || 0));
+  const sortedUsers = [...users].sort(
+    (a, b) => (b.totalXP || 0) - (a.totalXP || 0)
+  );
 
+  leaderboardContainer.innerHTML = ""; // Clear existing entries
   let loggedUserRank = 0;
-
-  leaderboardContainer.innerHTML = ""; // clear existing entries
 
   sortedUsers.forEach((u, index) => {
     const item = document.createElement("div");
@@ -161,11 +168,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       loggedUserRank = index + 1;
       setTimeout(() => {
         item.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 100);
+      }, 200);
     }
 
     const courseBadges = Array.isArray(u.myCourses)
-      ? u.myCourses.map(c => `<span class="course-badge">${c.courseKey?.toUpperCase?.() || "N/A"}</span>`).join("")
+      ? u.myCourses
+          .map(
+            (c) =>
+              `<span class="course-badge">${
+                c.courseKey?.toUpperCase?.() || "N/A"
+              }</span>`
+          )
+          .join("")
       : "";
 
     item.innerHTML = `
@@ -181,7 +195,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     leaderboardContainer.appendChild(item);
   });
 
-  // ----- SHOW FLOATING RANK BADGE -----
+  // ================== FLOATING RANK BADGE ==================
   if (loggedUserRank > 0) {
     const floatingBadge = document.createElement("div");
     floatingBadge.className = "floating-rank-badge";
@@ -189,12 +203,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     leaderboardContainer.prepend(floatingBadge);
   }
 
-  // ----- LOGOUT -----
+  // ================== LOGOUT ==================
   window.logout = function () {
     sessionStorage.clear();
     window.location.href = "index.html";
   };
 });
 </script>
+
 </body>
 </html>

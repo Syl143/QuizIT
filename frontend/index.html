@@ -70,15 +70,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const LOCAL_USERS_KEY = "quizit_local_users";
   const qs = (sel) => document.querySelector(sel);
 
-  // ✅ Auto-detect correct API URL
+  // ✅ Correct Render backend URL
   let BASE_URL;
   if (window.location.hostname.includes("localhost")) {
     BASE_URL = "http://localhost:3000/users";
-  } else if (window.location.hostname.includes("onrender.com")) {
-    // Replace with your actual Render API URL
-    BASE_URL = "https://quizit-backend.onrender.com/users";
   } else {
-    BASE_URL = "https://quizit-backend.onrender.com/users";
+    BASE_URL = "https://quizit-backend-bql1.onrender.com/users";
   }
 
   console.log("🌐 Using BASE_URL:", BASE_URL);
@@ -210,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+
 
 </body>
 </html>

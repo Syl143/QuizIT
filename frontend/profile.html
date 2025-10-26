@@ -119,14 +119,21 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  const API_BASE = "http://localhost:3000";
-  const DB_ENDPOINT = `${API_BASE}/db`;
+  // ================== CONFIG ==================
   const LOCAL_USERS_KEY = "quizit_local_users";
+  const qs = (sel) => document.querySelector(sel);
+  const qsa = (sel) => Array.from(document.querySelectorAll(sel));
 
-  const qs = sel => document.querySelector(sel);
-  const qsa = sel => Array.from(document.querySelectorAll(sel));
+  // ✅ Detect environment
+  const API_BASE = window.location.hostname.includes("localhost")
+    ? "http://localhost:3000"
+    : "https://quizit-backend-bql1.onrender.com";
 
-  // ---- SESSION CHECK ----
+  const USERS_ENDPOINT = `${API_BASE}/users`;
+  const MILESTONES_ENDPOINT = `${API_BASE}/milestones`;
+  console.log("🌐 Using API base:", API_BASE);
+
+  // ================== SESSION CHECK ==================
   const sessionUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   if (!sessionUser) {
     alert("Please log in first.");
@@ -134,31 +141,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // ---- LOAD DATA FROM db.json ----
-  let dbData = null;
-  try {
-    const res = await fetch(DB_ENDPOINT);
-    if (!res.ok) throw new Error("Server not reachable");
-    dbData = await res.json();
-  } catch (err) {
-    console.warn("⚠️ Could not fetch db.json. Using localStorage fallback:", err);
-  }
-
+  // ================== LOAD USERS + MILESTONES ==================
   let users = [];
-  if (dbData && Array.isArray(dbData.users)) {
-    users = dbData.users;
-  } else {
+  let milestonesData = { levels: [], badges: [] };
+
+  try {
+    const [userRes, milestoneRes] = await Promise.all([
+      fetch(USERS_ENDPOINT),
+      fetch(MILESTONES_ENDPOINT),
+    ]);
+
+    if (!userRes.ok || !milestoneRes.ok)
+      throw new Error("Server not reachable");
+
+    users = await userRes.json();
+    const milestoneArr = await milestoneRes.json();
+    milestonesData = milestoneArr[0] || { levels: [], badges: [] };
+
+    // cache locally
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+  } catch (err) {
+    console.warn("⚠️ Backend not reachable, using localStorage fallback:", err);
     const stored = localStorage.getItem(LOCAL_USERS_KEY);
     users = stored ? JSON.parse(stored) : [];
   }
 
-  const milestonesData = (dbData && dbData.milestones && dbData.milestones[0]) || { levels: [], badges: [] };
   const { levels, badges } = milestonesData;
 
-  // ---- FIND LOGGED-IN USER ----
-  let user = users.find(u => u.email === sessionUser.email);
+  // ================== FIND LOGGED-IN USER ==================
+  const user = users.find((u) => u.email === sessionUser.email);
   if (!user) {
-    alert("User not found.");
+    alert("User not found. Please log in again.");
     sessionStorage.clear();
     window.location.href = "index.html";
     return;
@@ -169,7 +182,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   user.lessonHistory = Array.isArray(user.lessonHistory) ? user.lessonHistory : [];
   user.totalXP = user.totalXP || 0;
 
-  // ---- ELEMENTS ----
+  // ================== ELEMENTS ==================
   const profileNameEl = qs(".profile-name-2");
   const profileNameEl1 = qs(".profile-name");
   const profileEmailEl = qs(".profile-email");
@@ -179,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const levelTitleEl = qs(".level-title");
   const levelProgressEl = qs(".level-progress");
 
-  // ---- SIDEBAR ----
+  // ================== SIDEBAR TOGGLE ==================
   const sidebar = qs(".sidebar");
   const toggleBtn = qs("#toggleSidebar");
   if (toggleBtn) {
@@ -188,55 +201,58 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // ---- SAVE ----
+  // ================== SAVE USER LOCALLY ==================
   function saveUser(updatedUser) {
-    const idx = users.findIndex(u => u.email === updatedUser.email);
+    const idx = users.findIndex((u) => u.email === updatedUser.email);
     if (idx !== -1) users[idx] = updatedUser;
     localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
     sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
   }
 
-  // ---- LEVEL + BADGE HELPERS ----
+  // ================== LEVEL + BADGE HELPERS ==================
   function getUserLevel(totalXP) {
-    if (!Array.isArray(levels) || levels.length === 0) return { level: 0, title: "No Levels", minXP: 0, maxXP: 100 };
-    return levels.slice().reverse().find(l => totalXP >= l.minXP) || levels[0];
+    if (!Array.isArray(levels) || levels.length === 0)
+      return { level: 0, title: "No Levels", minXP: 0, maxXP: 100 };
+    return levels.slice().reverse().find((l) => totalXP >= l.minXP) || levels[0];
   }
 
   function getNextLevel(currentXP) {
     if (!Array.isArray(levels) || levels.length === 0) return null;
-    return levels.find(l => l.minXP > currentXP);
+    return levels.find((l) => l.minXP > currentXP);
   }
 
   function getEarnedBadges(user) {
     if (!Array.isArray(badges)) return [];
-    return badges.filter(b => {
+    return badges.filter((b) => {
       const c = b.criteria || {};
       return (
         (!c.totalXP || user.totalXP >= c.totalXP) &&
-        (!c.lessonsCompleted || user.lessonHistory.length >= c.lessonsCompleted) &&
+        (!c.lessonsCompleted ||
+          user.lessonHistory.length >= c.lessonsCompleted) &&
         (!c.coursesCompleted || user.myCourses.length >= c.coursesCompleted)
       );
     });
   }
 
-  // ---- RENDER PROFILE ----
+  // ================== RENDER FUNCTIONS ==================
   function renderProfile() {
     if (profileNameEl) profileNameEl.textContent = user.fullname;
     if (profileNameEl1) profileNameEl1.textContent = user.fullname;
     if (profileEmailEl) profileEmailEl.textContent = user.email;
     if (profileXPEl) profileXPEl.textContent = user.totalXP;
-
     renderLevel();
     renderBadges();
     renderCourses();
   }
 
-  // ---- LEVEL BAR ----
   function renderLevel() {
     const current = getUserLevel(user.totalXP);
     const next = getNextLevel(user.totalXP);
 
-    if (levelTitleEl) levelTitleEl.textContent = `Level ${current.level || 0} — ${current.title || "N/A"}`;
+    if (levelTitleEl)
+      levelTitleEl.textContent = `Level ${current.level || 0} — ${
+        current.title || "N/A"
+      }`;
 
     if (levelProgressEl) {
       if (next) {
@@ -249,15 +265,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // ---- BADGES ----
   function renderBadges() {
     if (!badgeContainer) return;
     badgeContainer.innerHTML = "";
 
     const earnedBadges = getEarnedBadges(user);
-    const earnedIds = new Set(earnedBadges.map(b => b.id));
+    const earnedIds = new Set(earnedBadges.map((b) => b.id));
 
-    badges.forEach(b => {
+    badges.forEach((b) => {
       const earned = earnedIds.has(b.id);
       const badge = document.createElement("div");
       badge.className = `badge ${earned ? "earned" : "locked"}`;
@@ -270,7 +285,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // ---- COURSES ----
   function renderCourses() {
     if (!coursesContainer) return;
     coursesContainer.innerHTML = "";
@@ -281,7 +295,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const courses = {};
-    user.lessonHistory.forEach(lesson => {
+    user.lessonHistory.forEach((lesson) => {
       if (!courses[lesson.course]) courses[lesson.course] = [];
       courses[lesson.course].push(lesson);
     });
@@ -289,7 +303,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     for (const [courseName, lessons] of Object.entries(courses)) {
       const totalXP = lessons.reduce((sum, l) => sum + (l.xpEarned || 0), 0);
       const maxXP = lessons.length * 100;
-      const progressPercent = Math.min(100, Math.round((totalXP / maxXP) * 100));
+      const progressPercent = Math.min(
+        100,
+        Math.round((totalXP / maxXP) * 100)
+      );
 
       const card = document.createElement("div");
       card.className = "course-card";
@@ -304,16 +321,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // ---- INIT ----
+  // ================== INIT ==================
   renderProfile();
 
-  // ---- LOGOUT ----
-  window.logout = function() {
+  // ================== LOGOUT ==================
+  window.logout = function () {
     sessionStorage.clear();
     window.location.href = "index.html";
   };
 });
 </script>
+
 
 </body>
 </html>
