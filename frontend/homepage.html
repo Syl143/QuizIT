@@ -512,161 +512,156 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // ✅ Display a single lesson and handle quiz logic
-  function showLesson(courseKey, lessonTitle) {
-    const course = lessonsData[courseKey];
-    const lesson = course.lessons.find((l) => l.title === lessonTitle);
-    if (!lesson) return;
+ function showLesson(courseKey, lessonTitle) {
+  const course = lessonsData[courseKey];
+  const lesson = course.lessons.find((l) => l.title === lessonTitle);
+  if (!lesson) return;
 
-    // Switch panels
-    courseDetailPanel.classList.add("hidden");
-    lessonPanel.classList.remove("hidden");
+  // Switch panels
+  courseDetailPanel.classList.add("hidden");
+  lessonPanel.classList.remove("hidden");
 
-    // Set content
-    lessonTitleEl.textContent = lesson.title;
-    lessonIntroEl.textContent = lesson.content;
-    const slider = qs("#lesson-slider");
-    slider.innerHTML = "";
+  // Set content
+  lessonTitleEl.textContent = lesson.title;
+  lessonIntroEl.textContent = lesson.content;
+  const slider = qs("#lesson-slider");
+  slider.innerHTML = "";
 
-    // Escape HTML utility
-    function escapeHtml(text) {
-      const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
-      return text.replace(/[&<>"']/g, (m) => map[m]);
+  function escapeHtml(text) {
+    const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
+
+  // Track XP for this lesson
+  let lessonScore = 0;
+
+  // Render questions
+  lesson.questions.forEach((q, i) => {
+    const slide = document.createElement("div");
+    slide.className = "slide";
+    slide.style.display = i === 0 ? "block" : "none";
+
+    if (q.type === "multiple-choice") {
+      const opts = q.options
+        .map(
+          (o) => `<label><input type="radio" name="q${i}" value="${escapeHtml(o)}"> ${escapeHtml(o)}</label>`
+        )
+        .join("");
+      slide.innerHTML = `
+        <p>${i + 1}. ${q.text}</p>
+        <div>${opts}</div>
+        <button class="submit-btn">Submit</button>
+        <div class="feedback"></div>
+      `;
+    } else {
+      slide.innerHTML = `
+        <p>${i + 1}. ${q.text}</p>
+        <input class="short-answer-input" placeholder="Your answer...">
+        <button class="submit-btn">Submit</button>
+        <div class="feedback"></div>
+      `;
     }
+    slider.appendChild(slide);
+  });
 
-    // Render questions
-    lesson.questions.forEach((q, i) => {
-      const slide = document.createElement("div");
-      slide.className = "slide";
-      slide.style.display = i === 0 ? "block" : "none";
+  let current = 0;
+  let hints = 3;
+
+  function showSlide(n) {
+    const slides = slider.querySelectorAll(".slide");
+    slides.forEach((s, i) => (s.style.display = i === n ? "block" : "none"));
+    current = n;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = true;
+    nextBtn.textContent = current === slides.length - 1 ? "Finish Lesson" : "Next";
+    hintBoxEl.classList.add("hidden");
+  }
+  showSlide(0);
+
+  hintBtn.onclick = () => {
+    if (hints <= 0) return;
+    const hint = lesson.questions[current]?.hint || "No hint available.";
+    hintBoxEl.textContent = hint;
+    hintBoxEl.classList.remove("hidden");
+    hints--;
+    hintBtn.textContent = `💡 Hint (${hints} left)`;
+  };
+
+  // Answer submission + feedback
+  slider.querySelectorAll(".slide").forEach((slide, idx) => {
+    const btn = slide.querySelector(".submit-btn");
+    const feedback = slide.querySelector(".feedback");
+    let attempts = 2;
+    btn.onclick = () => {
+      const q = lesson.questions[idx];
+      let correct = false;
 
       if (q.type === "multiple-choice") {
-        const opts = q.options
-          .map(
-            (o) => `
-          <label><input type="radio" name="q${i}" value="${escapeHtml(o)}"> ${escapeHtml(o)}</label>
-        `
-          )
-          .join("");
-        slide.innerHTML = `
-          <p>${i + 1}. ${q.text}</p>
-          <div>${opts}</div>
-          <button class="submit-btn">Submit</button>
-          <div class="feedback"></div>
-        `;
+        const selected = slide.querySelector("input:checked");
+        if (!selected) return alert("Select an option first.");
+        correct = selected.value === q.answer;
       } else {
-        slide.innerHTML = `
-          <p>${i + 1}. ${q.text}</p>
-          <input class="short-answer-input" placeholder="Your answer...">
-          <button class="submit-btn">Submit</button>
-          <div class="feedback"></div>
-        `;
+        const input = slide.querySelector(".short-answer-input");
+        if (!input.value.trim()) return alert("Type an answer.");
+        correct = input.value.trim().toLowerCase() === q.answer.toLowerCase();
       }
-      slider.appendChild(slide);
-    });
 
-    // Slide + hint system
-    let current = 0;
-    let hints = 3;
-
-    function showSlide(n) {
-      const slides = slider.querySelectorAll(".slide");
-      slides.forEach((s, i) => (s.style.display = i === n ? "block" : "none"));
-      current = n;
-      prevBtn.disabled = current === 0;
-      nextBtn.disabled = true;
-      nextBtn.textContent =
-        current === slides.length - 1 ? "Finish Lesson" : "Next";
-      hintBoxEl.classList.add("hidden");
-    }
-    showSlide(0);
-
-    hintBtn.onclick = () => {
-      if (hints <= 0) return;
-      const hint = lesson.questions[current]?.hint || "No hint available.";
-      hintBoxEl.textContent = hint;
-      hintBoxEl.classList.remove("hidden");
-      hints--;
-      hintBtn.textContent = `💡 Hint (${hints} left)`;
-    };
-
-    // Answer submission + feedback
-    slider.querySelectorAll(".slide").forEach((slide, idx) => {
-      const btn = slide.querySelector(".submit-btn");
-      const feedback = slide.querySelector(".feedback");
-      let attempts = 2;
-      btn.onclick = () => {
-        const q = lesson.questions[idx];
-        let correct = false;
-
-        if (q.type === "multiple-choice") {
-          const selected = slide.querySelector("input:checked");
-          if (!selected) return alert("Select an option first.");
-          correct = selected.value === q.answer;
-        } else {
-          const input = slide.querySelector(".short-answer-input");
-          if (!input.value.trim()) return alert("Type an answer.");
-          correct = input.value.trim().toLowerCase() === q.answer.toLowerCase();
-        }
-
-        attempts--;
-        if (correct) {
-          feedback.textContent = "✅ Correct!";
-          feedback.style.color = "#2a9d8f";
+      attempts--;
+      if (correct) {
+        feedback.textContent = "✅ Correct!";
+        feedback.style.color = "#2a9d8f";
+        btn.disabled = true;
+        lessonScore += q.xp || 0; // Add XP only if correct
+        nextBtn.disabled = false;
+      } else {
+        feedback.textContent = attempts > 0
+          ? `❌ Incorrect (${attempts} tries left)`
+          : `Answer: ${q.answer}`;
+        feedback.style.color = "#e63946";
+        if (attempts <= 0) {
           btn.disabled = true;
           nextBtn.disabled = false;
-        } else {
-          feedback.textContent = attempts > 0
-            ? `❌ Incorrect (${attempts} tries left)`
-            : `Answer: ${q.answer}`;
-          feedback.style.color = "#e63946";
-          if (attempts <= 0) {
-            btn.disabled = true;
-            nextBtn.disabled = false;
-          }
         }
-      };
-    });
-
-    prevBtn.onclick = () => {
-      if (current > 0) showSlide(current - 1);
+      }
     };
-    nextBtn.onclick = () => {
-      const total = lesson.questions.length;
-      if (current < total - 1) showSlide(current + 1);
-      else completeLesson(course, lesson);
-    };
-  }
+  });
 
-  // ✅ Lesson completion logic
-  async function completeLesson(course, lesson) {
-    const done = user.lessonHistory.some(
-      (h) => h.lessonTitle === lesson.title && h.course === course.title
-    );
-    if (done) return;
+  prevBtn.onclick = () => {
+    if (current > 0) showSlide(current - 1);
+  };
 
-    const xpEarned =
-      lesson.questions.reduce((s, q) => s + (q.xp || 0), 0) ||
-      lesson.lessonXP ||
-      50;
+  nextBtn.onclick = () => {
+    const total = lesson.questions.length;
+    if (current < total - 1) showSlide(current + 1);
+    else completeLesson(course, lesson, lessonScore);
+  };
+}
 
-    user.lessonHistory.push({
-      course: course.title,
-      lessonTitle: lesson.title,
-      xpEarned,
-      dateCompleted: new Date().toLocaleDateString(),
-    });
+// ✅ Lesson completion logic with earned XP
+async function completeLesson(course, lesson, xpEarned) {
+  const done = user.lessonHistory.some(
+    (h) => h.lessonTitle === lesson.title && h.course === course.title
+  );
+  if (done) return;
 
-    await saveUser(user);
-    updateXP();
-    renderMyCourses();
-    renderLessonHistory();
-    renderChart();
+  user.lessonHistory.push({
+    course: course.title,
+    lessonTitle: lesson.title,
+    xpEarned: xpEarned || 0,
+    dateCompleted: new Date().toLocaleDateString(),
+  });
 
-    showToast(`🎉 ${lesson.title} completed! +${xpEarned} XP`);
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  await saveUser(user);
+  updateXP();
+  renderMyCourses();
+  renderLessonHistory();
+  renderChart();
 
-    setTimeout(() => backToLessonListBtn.click(), 3000);
-  }
+  showToast(`🎉 ${lesson.title} completed! +${xpEarned} XP`);
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+  setTimeout(() => backToLessonListBtn.click(), 3000);
+}
 
   // ✅ Navigation between panels
   backToCoursesBtn.onclick = () => {
