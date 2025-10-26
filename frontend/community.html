@@ -297,6 +297,14 @@ return "https://img.icons8.com/color/48/000000/user.png";
 // ----- INIT ----- 
 await loadCommunity(); 
 await loadUserFeed(); 
+  // ================== SIDEBAR TOGGLE ==================
+  const sidebar = qs(".sidebar");
+  const toggleBtn = qs("#toggleSidebar");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
+    });
+  }
   // ================== LOGOUT ==================
   window.logout = function () {
     sessionStorage.clear();
