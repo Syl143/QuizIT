@@ -84,44 +84,24 @@
 
 <!-- ===== Feed Section ===== -->
 <section id="feed-section" class="section">
-  <!-- New Feed Post Box -->
-  <div class="feed-new-post">
-    <div class="feed-post-header">
+  <!-- User Summary Card -->
+  <div class="feed-user-summary">
+    <div class="feed-user-header">
       <img
-        src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png"
+        src="https://img.icons8.com/color/96/000000/user-male-circle--v1.png"
         alt="User"
-        class="feed-user-icon"
+        class="feed-user-icon-large"
       />
-      <input
-        type="text"
-        id="feed-new-text"
-        placeholder="What's on your mind?"
-      />
+      <div class="feed-user-info">
+        <h2 id="feed-user-name">User Name</h2>
+        <p id="feed-user-votes"><i class="fa-solid fa-fire"></i> 0 Total Votes</p>
+      </div>
     </div>
-
-    <div class="feed-post-attachments">
-      <label>
-        <i class="fa-solid fa-image"></i>
-        <input type="file" id="feed-image-upload" accept="image/*" hidden />
-      </label>
-      <label>
-        <i class="fa-solid fa-video"></i>
-        <input type="file" id="feed-video-upload" accept="video/*" hidden />
-      </label>
-      <label>
-        <i class="fa-solid fa-link"></i>
-        <input type="url" id="feed-link-input" placeholder="Paste link..." />
-      </label>
-    </div>
-
-    <button id="feed-post-btn">
-      <i class="fa-solid fa-paper-plane"></i> Post
-    </button>
   </div>
 
   <!-- Feed Posts Container -->
   <div id="feed-posts-container">
-    <!-- Posts are dynamically rendered here by feed.js -->
+    <!-- All posts by this user will be dynamically rendered here -->
   </div>
 </section>
     
@@ -208,167 +188,224 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // ----- RENDER DISCUSSIONS -----
-  function renderDiscussions(discussions) {
-    const main = qs(".discussion-main");
-    main.innerHTML = `
-      <div class="new-post">
-        <div class="new-post-header">
-          <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" class="user-icon" />
-          <input type="text" id="new-post-title" placeholder="Post title..." />
+// ----- RENDER DISCUSSIONS -----
+function renderDiscussions(discussions) {
+  const main = qs(".discussion-main");
+
+  // Clear and add new-post box
+  main.innerHTML = `
+    <div class="new-post">
+      <div class="new-post-header">
+        <img src="https://img.icons8.com/color/48/000000/user-male-circle--v1.png" class="user-icon" />
+        <input type="text" id="new-post-title" placeholder="Post title..." />
+      </div>
+      <input type="text" id="new-post-text" placeholder="Share your thoughts..." />
+      <button id="post-btn"><i class="fa-solid fa-paper-plane"></i> Post</button>
+    </div>
+  `;
+
+  // ✅ Attach Post button handler once
+  const postBtn = main.querySelector("#post-btn");
+  postBtn.addEventListener("click", async () => {
+    const title = qs("#new-post-title").value.trim();
+    const content = qs("#new-post-text").value.trim();
+    if (!title || !content) {
+      alert("Please enter both title and content.");
+      return;
+    }
+
+    const newPost = {
+      title,
+      content,
+      author: user.id,
+      votes: 0,
+      timestamp: new Date().toLocaleString("en-US", { hour12: true }),
+      comments: [],
+    };
+
+    try {
+      const res = await fetch(DISCUSSIONS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPost),
+      });
+
+      if (!res.ok) throw new Error("Failed to create discussion");
+
+      const created = await res.json();
+      alert("✅ Post added successfully!");
+
+      // Append the new post dynamically (no full reload)
+      appendDiscussionCard(created);
+      // Clear inputs
+      qs("#new-post-title").value = "";
+      qs("#new-post-text").value = "";
+    } catch (err) {
+      console.error("Error posting discussion:", err);
+      alert("❌ Failed to add post. Please try again.");
+    }
+  });
+
+  // Render existing discussions
+  discussions.forEach((d) => appendDiscussionCard(d));
+
+  // ----- Helper: create and attach discussion card -----
+  function appendDiscussionCard(d) {
+    const card = document.createElement("div");
+    card.classList.add("discussion-card");
+    card.dataset.id = d.id;
+
+    card.innerHTML = `
+      <div class="vote-panel">
+        <button class="vote-btn upvote">⬆</button>
+        <span class="vote-count">${d.votes}</span>
+        <button class="vote-btn downvote">⬇</button>
+      </div>
+      <div class="post-content">
+        <h3>${d.title}</h3>
+        <p>
+          <img src="${getUserAvatar(d.author)}" class="user-icon-small" />
+          <strong>${getUserName(d.author)}:</strong> ${d.content}
+        </p>
+        <div class="post-actions">
+          <span class="comments-toggle">💬 ${d.comments.length} Comment</span>
+          <span>🕒 ${d.timestamp}</span>
         </div>
-        <input type="text" id="new-post-text" placeholder="Share your thoughts..." />
-        <button id="post-btn"><i class="fa-solid fa-paper-plane"></i> Post</button>
-      </div>`;
+        <div class="comments-section hidden">
+          <div class="comments-list">
+            ${d.comments
+              .map(
+                (c) => `
+              <div class="comment">
+                <img src="${getUserAvatar(c.author)}" class="user-icon-small" />
+                <strong>${getUserName(c.author)}:</strong> ${c.content}
+              </div>`
+              )
+              .join("")}
+          </div>
+          <div class="reply-input-container">
+            <input type="text" class="reply-input" placeholder="Write a reply..." />
+            <button class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    `;
 
-    // ----- Add New Discussion -----
-    const postBtn = main.querySelector("#post-btn");
-    postBtn.addEventListener("click", async () => {
-      const title = qs("#new-post-title").value.trim();
-      const content = qs("#new-post-text").value.trim();
-      if (!title || !content) {
-        alert("Please enter both title and content.");
-        return;
-      }
+    main.appendChild(card);
 
-      const newPost = {
-        title,
-        content,
+    // Toggle comment section
+    const toggleBtn = card.querySelector(".comments-toggle");
+    toggleBtn.addEventListener("click", () => {
+      const section = card.querySelector(".comments-section");
+      section.classList.toggle("hidden");
+    });
+
+    // Voting
+    card.querySelector(".upvote").addEventListener("click", () => updateVote(card, 1));
+    card.querySelector(".downvote").addEventListener("click", () => updateVote(card, -1));
+
+    // ----- Add Reply (PUT /discussions/:id) -----
+    const sendBtn = card.querySelector(".send-btn");
+    sendBtn.addEventListener("click", async () => {
+      const input = card.querySelector(".reply-input");
+      const commentText = input.value.trim();
+      if (!commentText) return alert("Please enter a comment.");
+
+      const discussionId = card.dataset.id;
+      const newComment = {
+        id: Date.now(),
         author: user.id,
-        votes: 0,
-        timestamp: new Date().toLocaleString("en-US", { hour12: true }),
-        comments: [],
+        content: commentText,
       };
 
       try {
-        const res = await fetch(DISCUSSIONS_ENDPOINT, {
-          method: "POST",
+        const res = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`);
+        const discussion = await res.json();
+
+        discussion.comments.push(newComment);
+
+        const updateRes = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`, {
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newPost),
+          body: JSON.stringify(discussion),
         });
-        if (!res.ok) throw new Error("Failed to create discussion");
-        const created = await res.json();
-        discussions.push(created);
-        renderDiscussions(discussions);
+
+        if (!updateRes.ok) throw new Error("Failed to post comment");
+
+        input.value = "";
+        // Append new comment instantly
+        const list = card.querySelector(".comments-list");
+        const commentEl = document.createElement("div");
+        commentEl.classList.add("comment");
+        commentEl.innerHTML = `
+          <img src="${getUserAvatar(newComment.author)}" class="user-icon-small" />
+          <strong>${getUserName(newComment.author)}:</strong> ${newComment.content}
+        `;
+        list.appendChild(commentEl);
       } catch (err) {
-        console.error("Error posting discussion:", err);
-        alert("❌ Failed to add post. Please try again.");
+        console.error("Error adding comment:", err);
+        alert("❌ Failed to add comment.");
       }
     });
+  }
+}
+// ----- UPDATE VOTES (only 1 vote per user, toggle allowed) -----
+async function updateVote(btn, change) {
+  const card = btn.closest(".discussion-card");
+  const discussionId = card.dataset.id;
+  const countEl = card.querySelector(".vote-count");
 
-    // ----- Render Existing Discussions -----
-    discussions.forEach((d) => {
-      const card = document.createElement("div");
-      card.classList.add("discussion-card");
-      card.dataset.id = d.id;
+  try {
+    // 1️⃣ Fetch the current discussion
+    const res = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`);
+    if (!res.ok) throw new Error("Failed to fetch discussion.");
+    const discussion = await res.json();
 
-      card.innerHTML = `
-        <div class="vote-panel">
-          <button class="vote-btn upvote">⬆</button>
-          <span class="vote-count">${d.votes}</span>
-          <button class="vote-btn downvote">⬇</button>
-        </div>
-        <div class="post-content">
-          <h3>${d.title}</h3>
-          <p>
-            <img src="${getUserAvatar(d.author)}" class="user-icon-small" />
-            <strong>${getUserName(d.author)}:</strong> ${d.content}
-          </p>
-          <div class="post-actions">
-            <span class="comments-toggle">💬 ${d.comments.length} Comment</span>
-            <span>🕒 ${d.timestamp}</span>
-          </div>
-          <div class="comments-section hidden">
-            <div class="comments-list">
-              ${d.comments
-                .map(
-                  (c) => `
-                <div class="comment">
-                  <img src="${getUserAvatar(c.author)}" class="user-icon-small" />
-                  <strong>${getUserName(c.author)}:</strong> ${c.content}
-                </div>`
-                )
-                .join("")}
-            </div>
-            <div class="reply-input-container">
-              <input type="text" class="reply-input" placeholder="Write a reply..." />
-              <button class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-          </div>
-        </div>`;
+    // Ensure votes tracking exists
+    if (!discussion.voters) discussion.voters = {};
 
-      main.appendChild(card);
+    const userId = String(user.id);
+    const previousVote = discussion.voters[userId] || 0; // 1=upvote, -1=downvote, 0=none
+
+    let newVoteValue = 0;
+
+    // 2️⃣ Determine new vote state
+    if (previousVote === change) {
+      // Clicking same button → remove vote
+      newVoteValue = 0;
+      discussion.votes -= change;
+    } else {
+      // Clicking different button or no previous vote
+      discussion.votes += change - previousVote; // adjust based on previous
+      newVoteValue = change;
+    }
+
+    // 3️⃣ Save vote state
+    discussion.voters[userId] = newVoteValue;
+    if (discussion.votes < 0) discussion.votes = 0;
+
+    // 4️⃣ Update UI instantly
+    countEl.textContent = discussion.votes;
+
+    // Optional: highlight current user's choice visually
+    const upBtn = card.querySelector(".upvote");
+    const downBtn = card.querySelector(".downvote");
+    upBtn.classList.toggle("active", newVoteValue === 1);
+    downBtn.classList.toggle("active", newVoteValue === -1);
+
+    // 5️⃣ Save updated data to backend
+    const updateRes = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(discussion),
     });
 
-    // Toggle comment sections
-    qsa(".comments-toggle").forEach((btn) =>
-      btn.addEventListener("click", (e) => {
-        const section = e.target
-          .closest(".post-content")
-          .querySelector(".comments-section");
-        section.classList.toggle("hidden");
-      })
-    );
-
-    // Voting
-    qsa(".upvote").forEach((btn) =>
-      btn.addEventListener("click", () => updateVote(btn, 1))
-    );
-    qsa(".downvote").forEach((btn) =>
-      btn.addEventListener("click", () => updateVote(btn, -1))
-    );
-
-    // ----- Add Reply (POST /discussions/:id/comments) -----
-    qsa(".send-btn").forEach((btn) =>
-      btn.addEventListener("click", async (e) => {
-        const card = e.target.closest(".discussion-card");
-        const input = card.querySelector(".reply-input");
-        const commentText = input.value.trim();
-        if (!commentText) return alert("Please enter a comment.");
-
-        const discussionId = card.dataset.id;
-
-        const newComment = {
-          id: Date.now(),
-          author: user.id,
-          content: commentText,
-        };
-
-        try {
-          // Fetch the discussion to update comments
-          const res = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`);
-          const discussion = await res.json();
-
-          // Append new comment
-          discussion.comments.push(newComment);
-
-          // Update discussion on server
-          const updateRes = await fetch(`${DISCUSSIONS_ENDPOINT}/${discussionId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(discussion),
-          });
-
-          if (!updateRes.ok) throw new Error("Failed to post comment");
-
-          input.value = "";
-          await loadCommunity(); // refresh discussions
-        } catch (err) {
-          console.error("Error adding comment:", err);
-          alert("❌ Failed to add comment.");
-        }
-      })
-    );
+    if (!updateRes.ok) throw new Error("Failed to update vote count.");
+  } catch (err) {
+    console.error("❌ Error updating vote:", err);
+    alert("Failed to save vote.");
   }
-
-  // ----- UPDATE VOTES -----
-  function updateVote(btn, change) {
-    const card = btn.closest(".discussion-card");
-    const countEl = card.querySelector(".vote-count");
-    let votes = parseInt(countEl.textContent) + change;
-    if (votes < 0) votes = 0;
-    countEl.textContent = votes;
-  }
+}
 
   // ----- RENDER TOPICS -----
   function renderTopics(topics) {
@@ -397,40 +434,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function renderUserFeed(posts) {
-    const container = qs("#feed-posts-container");
-    container.innerHTML = "";
-    if (posts.length === 0) {
-      container.innerHTML = `<p class="no-posts">You haven’t posted anything yet.</p>`;
-      return;
-    }
+function renderUserFeed(posts) {
+  const container = qs("#feed-posts-container");
+  container.innerHTML = "";
 
-    posts.forEach((p) => {
-      const postCard = document.createElement("div");
-      postCard.classList.add("feed-post-card");
-      postCard.innerHTML = `
-        <div class="feed-post-header">
-          <img src="${getUserAvatar(p.author)}" alt="User" class="feed-user-icon">
-          <div>
-            <h4 class="feed-user-name">${getUserName(p.author)}</h4>
-            <p class="feed-timestamp">${p.timestamp}</p>
-          </div>
-        </div>
-        <p class="feed-post-content">${p.title}: ${p.content}</p>
-        <div class="feed-post-actions">
-          <div class="feed-left-actions">
-            <button class="feed-like-btn">
-              <i class="fa-solid fa-thumbs-up"></i> Like <span class="feed-like-count">${p.votes}</span>
-            </button>
-            <button class="feed-comment-btn">
-              <i class="fa-solid fa-comment"></i> Comment (${p.comments.length})
-            </button>
-          </div>
-          <button class="feed-share-btn"><i class="fa-solid fa-share"></i> Share</button>
-        </div>`;
-      container.appendChild(postCard);
-    });
+  // Show user info in summary card
+  const totalVotes = posts.reduce((sum, p) => sum + (p.votes || 0), 0);
+  qs("#feed-user-name").textContent = getUserName(user.id);
+  qs("#feed-user-votes").innerHTML = `<i class="fa-solid fa-fire"></i> ${totalVotes} Total Votes`;
+
+  // If user has no posts
+  if (posts.length === 0) {
+    container.innerHTML = `<p class="no-posts">You haven’t posted anything yet.</p>`;
+    return;
   }
+
+  // Render each post
+  posts.forEach((p) => {
+    const postCard = document.createElement("div");
+    postCard.classList.add("feed-post-card");
+    postCard.innerHTML = `
+      <div class="feed-post-header">
+        <img src="${getUserAvatar(p.author)}" alt="User" class="feed-user-icon" />
+        <div>
+          <h4 class="feed-user-name">${getUserName(p.author)}</h4>
+          <p class="feed-timestamp">${p.timestamp}</p>
+        </div>
+      </div>
+      <p class="feed-post-content">${p.title}: ${p.content}</p>
+      <div class="feed-post-actions">
+        <span><i class="fa-solid fa-thumbs-up"></i> ${p.votes} votes</span>
+        <span><i class="fa-solid fa-comment"></i> ${p.comments.length} comments</span>
+      </div>
+    `;
+    container.appendChild(postCard);
+  });
+}
 
   // ----- HELPERS -----
   function getUserName(id) {
