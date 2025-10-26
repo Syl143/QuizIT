@@ -1,4 +1,3 @@
-// backend/server.js
 const jsonServer = require("json-server");
 const server = jsonServer.create();
 const router = jsonServer.router("db.json");
@@ -6,7 +5,6 @@ const middlewares = jsonServer.defaults({ static: "./public" });
 
 const PORT = process.env.PORT || 10000;
 
-// ✅ Enable CORS
 server.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -18,6 +16,12 @@ server.use((req, res, next) => {
 });
 
 server.use(middlewares);
+
+// 👇 Add this line
+server.get("/", (req, res) => {
+  res.send("🎉 QuizIT backend is running successfully!");
+});
+
 server.use(router);
 
 server.listen(PORT, () => {
