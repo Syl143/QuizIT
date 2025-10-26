@@ -201,7 +201,6 @@
       ]
     }
   ],
-  "community": {
     "discussions": [
       {
         "id": 1,
@@ -222,8 +221,7 @@
     "topics": [
       { "id": 1, "tag": "#QuizTips", "title": "How to ace timed quizzes?", "count": "12k 🔥" },
       { "id": 2, "tag": "#AI", "title": "Play vs AI strategies", "count": "8k 🔥" }
-    ]
-  },
+    ],
   "lessons":[
     {
       "python": {
